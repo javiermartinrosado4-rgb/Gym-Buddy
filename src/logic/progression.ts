@@ -1,0 +1,50 @@
+import { messages } from "../content/es";
+import { ExerciseType, Range, SetRecord } from "../types";
+import { validRange, validWeight } from "./validation";
+export const roundWeight = (value: number) => Math.round(value * 4) / 4;
+export function progression(
+  type: ExerciseType,
+  range: Range,
+  sets: SetRecord[],
+  expectedSets = 2,
+  loadStep = 1.25,
+) {
+  const valid =
+    validRange(range) &&
+    sets.length === expectedSets &&
+    sets.every(
+      (s) =>
+        validWeight(s.weight) &&
+        Number.isInteger(s.reps) &&
+        s.reps > 0 &&
+        s.reps <= 100,
+    );
+  const sameWeight =
+    sets.length > 0 && sets.every((s) => s.weight === sets[0].weight);
+  const increase = valid && sameWeight && sets.every((s) => s.reps >= range[1]);
+  const current = sets[0]?.weight ?? 0;
+  const step = validWeight(loadStep) && loadStep > 0 ? loadStep : 1.25;
+  const increments = Array.from({ length: validWeight(current) ? Math.ceil(current * 0.05 / step) : 0 }, (_, i) => (i + 1) * step)
+    .filter(n => n >= current * 0.03 - 1e-8 && n <= current * 0.05 + 1e-8)
+    .sort((a, b) => Math.abs(a - current * 0.04) - Math.abs(b - current * 0.04));
+  const available = increments[0];
+  const suggested = increase && current > 0 && available !== undefined
+    ? roundWeight(current + available) : current;
+  const canIncrease = increase && suggested > current && validWeight(suggested);
+  const percent = canIncrease ? Math.round((suggested / current - 1) * 1000) / 10 : 0;
+  return {
+    increase: canIncrease,
+    suggested: canIncrease ? suggested : current,
+    current,
+    percent,
+    message: !valid
+      ? messages.progression.completaTodasLasSeriesParaValorarLa
+      : !sameWeight
+        ? messages.progression.hasUsadoCargasDistintasEligeLaCarga
+        : canIncrease
+          ? `Máximo alcanzado en todas las series. Próxima sesión: ${suggested} kg (+${percent}%). Se prepara automáticamente; puedes modificar el peso dentro de cada serie.`
+          : increase && current > 0
+            ? "Máximo alcanzado. Tu incremento disponible no permite una subida del 3–5 %; se mantiene la carga. Puedes ajustar el incremento en Editar ejercicio."
+          : messages.progression.mantenElPesoHastaAlcanzarElMaximo,
+  };
+}
