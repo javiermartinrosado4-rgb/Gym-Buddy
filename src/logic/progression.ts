@@ -21,6 +21,9 @@ export function progression(
     );
   const sameWeight =
     sets.length > 0 && sets.every((s) => s.weight === sets[0].weight);
+  // Reaching the top of the range is the threshold, not a ceiling: extra
+  // repetitions still count as a successful progression and must increase the
+  // next-session load.
   const increase = valid && sameWeight && sets.every((s) => s.reps >= range[1]);
   const current = sets[0]?.weight ?? 0;
   const step = validWeight(loadStep) && loadStep > 0 ? loadStep : 1.25;

@@ -499,6 +499,18 @@ test("double progression: all effective sets, configurable range, 5% and 3%", ()
   );
   assert.equal(
     progression(
+      "compound",
+      [6, 8],
+      [
+        { weight: 40, reps: 10 },
+        { weight: 40, reps: 9 },
+      ],
+    ).suggested,
+    41.25,
+    "superar el máximo del rango también debe preparar una subida de peso",
+  );
+  assert.equal(
+    progression(
       "isolation",
       [8, 10],
       [
