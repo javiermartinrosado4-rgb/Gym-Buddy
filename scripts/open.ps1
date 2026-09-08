@@ -15,5 +15,5 @@ if ($listener) {
 }
 $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + $env:Path
 Write-Host 'Abriendo Gym Buddy. Deja esta ventana abierta mientras utilizas la aplicacion.'
-Write-Host 'Para detenerla, pulsa Ctrl+C o utiliza Detener Gym60.cmd.'
+Write-Host 'Para detenerla, pulsa Ctrl+C o utiliza Detener Gym Buddy.cmd.'
 & npx.cmd expo start --web --localhost --port 8081

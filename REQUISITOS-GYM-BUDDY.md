@@ -2,7 +2,7 @@
 
 ## Implementado en esta revisión
 
-- Nombre visible Gym Buddy. Se conserva el slug técnico y la clave de almacenamiento gym60 para no perder datos ni romper accesos existentes.
+- Nombre visible y técnico Gym Buddy. Se conserva la clave de almacenamiento histórica `gym60:state:v1` para no perder datos locales existentes.
 - Descanso estimado entre series: 4 minutos en multiarticulares/pesados y 3 minutos en aislamiento. La duración suma 30 segundos por serie efectiva y descansos entre series; calentamiento y aproximación quedan aparte.
 - Máximo 5 ejercicios para principiantes, 6 para intermedios; provisionalmente 6 también para avanzados.
 - Rango mínimo/máximo de **repeticiones por serie**, interpretando el ejemplo de 8 repeticiones. Series efectivas configurables entre 2 y 6 por ejercicio, con objetivos semanales visibles.

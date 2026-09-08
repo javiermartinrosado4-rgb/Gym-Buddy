@@ -1,10 +1,10 @@
 # Gym Buddy
 
-Aplicación local de gimnasio en español, construida con React Native, Expo SDK 57, Expo Router y TypeScript. El proyecto conserva la carpeta y el slug técnico `gym60` para mantener los accesos y los datos existentes.
+Aplicación local de gimnasio en español, construida con React Native, Expo SDK 57, Expo Router y TypeScript.
 
 ## Abrir
 
-Abre **Abrir Gym Buddy.cmd** desde esta carpeta. La app está en http://localhost:8081. Los lanzadores antiguos Gym60 también funcionan. Para detenerla puedes usar **Detener Gym60.cmd**.
+Abre **Abrir Gym Buddy.cmd** desde esta carpeta. La app está en http://localhost:8081. Para detenerla puedes usar **Detener Gym Buddy.cmd**.
 
 La rutina y el historial se guardan en este navegador y dirección. Comunidad tiene cuentas independientes con contraseña, fotos y seguidores en un servidor compartido. El lanzador inicia ese servidor en el puerto 8082, accesible desde este equipo. Cerrar la sesión local conserva los entrenamientos y cierra también el acceso social; la sesión local no es un bloqueo con contraseña.
 
