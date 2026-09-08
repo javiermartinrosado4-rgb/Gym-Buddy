@@ -13,14 +13,17 @@
     "expo-router": "~57.0.19",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.3",
+    "google-auth-library": "^11.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
-    "react-native-worklets": "0.10.1"
+    "react-native-worklets": "0.10.1",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
@@ -37,7 +40,8 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "tsx --test tests/logic.test.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "server": "tsx server/index.ts",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm test"
   },

@@ -1,5 +1,4 @@
 import { messages } from "../content/es";
-import { useState } from "react";
 import { router } from "expo-router";
 import { View } from "react-native";
 import {
@@ -14,16 +13,12 @@ import {
 } from "../components/ui";
 import { useStore } from "../state/Store";
 import { useTheme } from "../theme";
-import { ProgressChart } from "../components/ProgressChart";
-import { bodyWeightProgress, exerciseProgress, scoreProgress } from "../logic/progress";
-import { displayName } from "../logic/routine";
+import { ProgressExplorer } from "../components/ProgressExplorer";
+import { ComparisonCard } from "../components/ComparisonCard";
+import { estimateCalories } from "../logic/calories";
 export default function Progress() {
   const { state } = useStore();
   const { colors } = useTheme();
-  const ids = [...new Set(state.history.flatMap(w => w.records.map(r => r.prescription.exerciseId)))];
-  const [selected, setSelected] = useState<string>();
-  const exerciseId = selected ?? ids[0];
-  const score = scoreProgress(state);
   return (
     <Page>
       <Heading
@@ -54,22 +49,8 @@ export default function Progress() {
           </Txt>
         </Card>
       </Row>
-      <ProgressChart title="Peso corporal" points={bodyWeightProgress(state)} unit="kg" />
-      <Card>
-        <Pill>Puntuación experimental · sin nivel asignado</Pill>
-        <Txt muted size={13}>Media de la carga relativa: 100 × peso levantado / peso corporal registrado en esa sesión. La fórmula definitiva, su nombre y los niveles están pendientes de diseño; todavía no mide tu nivel real.</Txt>
-        <Txt muted size={12}>Se incluyen ejercicios de peso libre del catálogo y máquinas que validemos. Las mancuernas se registran por unidad. Usa siempre la misma técnica y compara también las repeticiones.</Txt>
-        <Txt muted size={12}>Base fija de esta gráfica: {score.exercises.length} ejercicios. Empieza cuando todos tienen datos; al incorporar un ejercicio nuevo se recalcula el periodo comparable.</Txt>
-        {score.exercises.map(id => <Txt key={id} size={12}>{displayName(id, state.preferences)}</Txt>)}
-      </Card>
-      <ProgressChart title="Evolución de la puntuación" points={score.points} unit="puntos" />
-      {!!ids.length && <>
-        <Txt weight="600">Progreso por ejercicio o máquina</Txt>
-        <View style={{ gap: 6 }}>
-          {ids.map(id => <Button key={id} label={displayName(id, state.preferences)} compact variant={exerciseId === id ? "primary" : "secondary"} onPress={() => setSelected(id)} />)}
-        </View>
-        <ProgressChart key={exerciseId} title={`Carga: ${displayName(exerciseId, state.preferences)}`} points={exerciseProgress(state.history, exerciseId)} unit="kg" />
-      </>}
+      <ComparisonCard />
+      <ProgressExplorer />
       {!state.history.length ? (
         <Card style={{ alignItems: "center", paddingVertical: 32 }}>
           <View
@@ -132,6 +113,7 @@ export default function Progress() {
                   No realizados hoy: {w.skipped.join(", ")}
                 </Txt>
               )}
+              {estimateCalories(w) !== null && <Txt muted size={13}>≈ {estimateCalories(w)} kcal estimadas</Txt>}
             </Card>
           ))}
         </>

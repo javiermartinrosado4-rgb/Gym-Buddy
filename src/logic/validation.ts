@@ -16,7 +16,6 @@ export function profileErrors(p: Profile): Record<string, string> {
   const errors: Record<string, string> = {};
   if ((p.name?.trim().length ?? 0) > 60) errors.name = "Usa un nombre de hasta 60 caracteres.";
   if (p.handle && !/^[a-zA-Z0-9_]{3,24}$/.test(p.handle)) errors.handle = "Usa de 3 a 24 letras, números o guiones bajos, sin @.";
-  if (p.mesocycle && (p.level !== "advanced" || p.priority === "balanced")) errors.mesocycle = "El mesociclo requiere nivel avanzado y un músculo prioritario.";
   if (
     p.trainingDays !== undefined &&
     (new Set(p.trainingDays).size !== p.days ||

@@ -6,7 +6,7 @@ const seed = (): AppState => ({ version: 1, profile: demoProfile, preferences: e
 async function load(page: Page, state: AppState) {
   await page.goto("/");
   await page.evaluate(s => localStorage.setItem("gym60:state:v1", JSON.stringify(s)), state);
-  await page.goto("/routine");
+  await page.goto("/today");
 }
 test("reorder, profile edits during a workout, community and local logout survive reload", async ({ page }) => {
   const errors: string[] = [];
@@ -17,7 +17,8 @@ test("reorder, profile edits during a workout, community and local logout surviv
   await page.getByRole("button", { name: "Bajar ejercicio 1", exact: true }).click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!).routine[0].exercises[0].id)).toBe(initial.routine[0].exercises[1].id);
   await page.reload();
-  await page.getByRole("button", { name: "Empezar esta sesión", exact: true }).click();
+  await page.getByRole("button", { name: `Entrenar ${initial.routine[0].name}`, exact: true }).click();
+  await page.getByRole("button", { name: "Iniciar entrenamiento", exact: true }).click();
   await page.getByRole("textbox", { name: "Peso serie 1", exact: true }).fill("35");
   await page.getByRole("button", { name: "Guardar y salir", exact: true }).click();
   await page.getByRole("button", { name: "Perfil", exact: true }).click();
@@ -30,7 +31,7 @@ test("reorder, profile edits during a workout, community and local logout surviv
   await page.getByRole("button", { name: "Comunidad", exact: true }).click();
   await expect(page.getByText("@javier_gym", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Progreso", exact: true }).click();
-  await expect(page.getByText("Peso corporal", { exact: true })).toBeVisible();
+  await expect(page.getByText("Peso corporal · siempre visible", { exact: true })).toBeVisible();
   await page.screenshot({ path: "test-results/gym-buddy-progreso.png" });
   await page.getByRole("button", { name: "Perfil", exact: true }).click();
   await page.getByRole("button", { name: "Cerrar sesión", exact: true }).click();
@@ -69,7 +70,8 @@ test("workout arrows preserve drafts and skipped exercises only affect today's s
   const exerciseCount = state.routine[0].exercises.length;
   const routineIds = state.routine[0].exercises.map((entry) => entry.id);
   await load(page, state);
-  await page.getByRole("button", { name: "Empezar esta sesión", exact: true }).click();
+  await page.getByRole("button", { name: `Entrenar ${state.routine[0].name}`, exact: true }).click();
+  await page.getByRole("button", { name: "Iniciar entrenamiento", exact: true }).click();
   await page.getByRole("textbox", { name: "Peso serie 1", exact: true }).fill("35");
   await page.getByRole("textbox", { name: "Repeticiones serie 1", exact: true }).fill("8");
   await page.getByRole("button", { name: "Ejercicio siguiente", exact: true }).click();

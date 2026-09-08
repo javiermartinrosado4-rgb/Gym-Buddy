@@ -8,13 +8,16 @@ export type Muscle =
   | "glutes"
   | "quads"
   | "hamstrings"
-  | "calves";
+  | "calves"
+  | "abs";
 export type Variant = "machine" | "free" | "cable" | "smith";
 export type ExerciseType = "compound" | "isolation";
+export type ExerciseTier = "S+" | "S" | "A" | "B";
 export type Range = [number, number];
 export type ThemeMode = "system" | "light" | "dark";
 export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export interface Profile {
+  avatar?: string;
   name?: string;
   handle?: string;
   includeGlutes?: boolean;
@@ -37,6 +40,7 @@ export interface Exercise {
   muscle: Muscle;
   secondary: Muscle[];
   priority: number;
+  tier?: ExerciseTier;
   minLevel: Level;
   type: ExerciseType;
   equipment: string;
@@ -65,6 +69,8 @@ export interface Preferences {
   unavailable: string[];
   equipment: Variant[];
   names: Record<string, string>;
+  /** Personal reminders shown while logging this specific exercise. */
+  notes?: Record<string, string>;
   weights: Record<string, number>;
   ranges: Record<string, Range>;
   custom: Exercise[];
@@ -81,6 +87,8 @@ export interface ExerciseRecord {
   sets: SetRecord[];
 }
 export interface Workout {
+  startedAt?: string;
+  level?: Level;
   bodyWeight?: number;
   id: string;
   dayId?: string;
@@ -90,7 +98,13 @@ export interface Workout {
   records: ExerciseRecord[];
   skipped?: string[];
 }
+export interface PlannedWorkout {
+  date: string;
+  dayId: string;
+  day: Day;
+}
 export interface ActiveWorkout {
+  level?: Level;
   bodyWeight?: number;
   day: Day;
   index: number;
@@ -110,7 +124,10 @@ export interface AppState {
   completed: boolean;
   theme: ThemeMode;
   preferences: Preferences;
+  volumeTargets?: Partial<Record<Muscle, number>>;
   routine: Day[];
   history: Workout[];
+  plannedWorkouts?: PlannedWorkout[];
+  skippedWorkoutDates?: string[];
   active?: ActiveWorkout;
 }

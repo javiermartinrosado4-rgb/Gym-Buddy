@@ -5,6 +5,7 @@ import { Platform, useWindowDimensions, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { APP } from "../config";
 import { StoreProvider, useStore } from "../state/Store";
+import { CommunityProvider } from "../state/Community";
 import { ThemeProvider, useTheme } from "../theme";
 import { Button, Loading, Notice } from "../components/ui";
 export { ErrorBoundary } from "../components/RouteError";
@@ -65,7 +66,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StoreProvider>
         <ThemeProvider>
-          <Frame />
+          <CommunityProvider><Frame /></CommunityProvider>
         </ThemeProvider>
       </StoreProvider>
     </SafeAreaProvider>

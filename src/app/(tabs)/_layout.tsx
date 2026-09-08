@@ -5,8 +5,8 @@ import { useStore } from "../../state/Store";
 import { useTheme } from "../../theme";
 import { Icon, Txt } from "../../components/ui";
 const tabs = [
-  { path: "/today", name: "Hoy", icon: "sun" },
-  { path: "/routine", name: "Rutina", icon: "grid" },
+  { path: "/today", name: "Entrenamiento", icon: "sun" },
+  { path: "/routine", name: "Calendario", icon: "grid" },
   { path: "/progress", name: "Progreso", icon: "bar-chart-2" },
   { path: "/community", name: "Comunidad", icon: "users" },
   { path: "/profile", name: "Perfil", icon: "user" },

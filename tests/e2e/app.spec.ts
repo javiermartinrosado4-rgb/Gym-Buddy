@@ -15,7 +15,7 @@ async function onboard(page: Page) {
   await page.getByRole("radio", { name: "Pecho", exact: true }).click();
   await page.getByRole("button", { name: "Generar mi rutina" }).click();
   await expect(
-    page.getByRole("heading", { name: "Una semana con sentido" }),
+    page.getByRole("button", { name: "Entrenamiento", exact: true }),
   ).toBeVisible();
 }
 
@@ -44,7 +44,7 @@ test("profile changes regenerate five days and keep unavailable exercise prefere
     })
     .click();
   await expect(page.getByText(/Perfil actualizado/)).toBeVisible();
-  await page.getByRole("button", { name: "Rutina", exact: true }).click();
+  await page.getByRole("button", { name: "Entrenamiento", exact: true }).click();
   await expect(
     page.getByRole("radio", { name: /Especialización/ }),
   ).toBeVisible();
@@ -104,7 +104,7 @@ test("complete onboarding, back navigation, validation, editing, workout and per
   await page.getByRole("radio", { name: "Pecho", exact: true }).click();
   await page.getByRole("button", { name: "Generar mi rutina" }).click();
   await expect(
-    page.getByRole("heading", { name: "Una semana con sentido" }),
+    page.getByRole("button", { name: "Entrenamiento", exact: true }),
   ).toBeVisible();
   await page.screenshot({ path: "test-results/rutina.png" });
   await page
@@ -128,11 +128,21 @@ test("complete onboarding, back navigation, validation, editing, workout and per
     .click();
   await page.reload();
   await expect(
-    page.getByText("Pecho en mi gimnasio", { exact: true }),
+    page.getByText("Pecho Mi Gimnasio", { exact: true }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Empezar esta sesión", exact: true })
-    .click();
+  await page.evaluate(() => {
+    const key = "gym60:state:v1";
+    const saved = JSON.parse(localStorage.getItem(key)!);
+    const torso = saved.routine.find((day: { name: string }) => day.name === "Torso") ?? saved.routine[0];
+    const today = new Date().toISOString();
+    saved.plannedWorkouts = [
+      ...(saved.plannedWorkouts ?? []).filter((item: { date: string }) => item.date.slice(0, 10) !== today.slice(0, 10)),
+      { date: today, dayId: torso.id, day: torso },
+    ];
+    localStorage.setItem(key, JSON.stringify(saved));
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Iniciar entrenamiento", exact: true }).click();
   await page
     .getByRole("button", { name: "Guardar y siguiente ejercicio" })
     .click();
@@ -174,7 +184,7 @@ test("complete onboarding, back navigation, validation, editing, workout and per
   await expect(page.getByText("ENTRENAMIENTO GUARDADO")).toBeVisible();
   await expect(page.getByRole("button", { name: "Confirmar próximo peso", exact: true })).toHaveCount(0);
   await expect.poll(async () => page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!).preferences.weights["chest-press"])).toBe(36.25);
-  await page.getByRole("button", { name: "Volver a Hoy", exact: true }).click();
+  await page.getByRole("button", { name: "Volver a Entrenamiento", exact: true }).click();
   await page.getByRole("button", { name: "Progreso", exact: true }).click();
   await expect(page.getByText("Tu historial", { exact: true })).toBeVisible();
   await page.reload();
@@ -297,7 +307,7 @@ test("substitution preferences, custom exercises, demo progression, themes and s
   );
   await page.getByRole("button", { name: "Volver", exact: true }).click();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole("button", { name: "Hoy", exact: true }).click();
+  await page.getByRole("button", { name: "Entrenamiento", exact: true }).click();
   await page.screenshot({ path: "test-results/movil.png" });
   expect(
     await page.evaluate(

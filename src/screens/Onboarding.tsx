@@ -41,7 +41,7 @@ export default function Onboarding() {
   const step = Math.min(3, state.onboardingStep);
   const profile = state.profile;
   const change = (patch: Partial<Profile>) => {
-    update((s) => ({ ...s, profile: { ...s.profile, ...patch, ...(patch.level && patch.level !== "advanced" ? { mesocycle: false } : {}) } }));
+    update((s) => ({ ...s, profile: { ...s.profile, ...patch } }));
     setErrors({});
   };
   if (state.completed) return <Redirect href="/routine" />;
@@ -59,10 +59,10 @@ export default function Onboarding() {
       update((s) => ({
         ...s,
         completed: true,
-        programRevision: 2,
+        programRevision: 3,
         routine: generateRoutine(s.profile, s.preferences),
       }));
-      router.replace("/routine");
+      router.replace("/today");
     }
   };
   return (

@@ -47,6 +47,7 @@ export const muscles: { id: Muscle | "balanced"; name: string }[] = [
   { id: "quads", name: "Cuádriceps" },
   { id: "hamstrings", name: "Isquios" },
   { id: "calves", name: "Gemelos" },
+  { id: "abs", name: "Abdominales" },
 ];
 export const variants: { id: Variant; name: string }[] = [
   { id: "machine", name: "Máquinas" },
@@ -79,6 +80,7 @@ export const emptyPreferences: Preferences = {
   unavailable: [],
   equipment: ["machine", "free", "cable", "smith"],
   names: {},
+  notes: {},
   weights: {},
   ranges: {},
   custom: [],

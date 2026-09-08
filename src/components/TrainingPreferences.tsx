@@ -1,14 +1,12 @@
 import { Profile } from "../types";
 import { glutesEnabled } from "../logic/routine";
 import { Choice, Notice } from "./ui";
+
 export function TrainingPreferences({ profile, change }: { profile: Profile; change: (patch: Partial<Profile>) => void }) {
   return <>
-    <Choice multiple title="Incluir ejercicios específicos de glúteos"
-      description="Puedes cambiarlo siempre o añadirlos desde tu rutina de pierna."
+    <Choice multiple title="Incluir ejercicios especificos de gluteos"
+      description="Puedes cambiarlo siempre o anadirlos desde tu rutina de pierna."
       selected={glutesEnabled(profile)} onPress={() => change({ includeGlutes: !glutesEnabled(profile) })} />
-    {profile.level === "advanced" && <Choice multiple title="Mesociclo de especialización"
-      description="16 series semanales del músculo que selecciones como prioritario."
-      selected={!!profile.mesocycle} onPress={() => change({ mesocycle: !profile.mesocycle })} />}
-    {profile.mesocycle && profile.priority === "balanced" && <Notice>Selecciona un músculo prioritario para el mesociclo.</Notice>}
+    <Notice>Consejo de recuperacion: intenta dejar unas 72 horas entre el trabajo directo de un mismo grupo muscular y volver a entrenarlo.</Notice>
   </>;
 }

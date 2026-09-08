@@ -23,7 +23,9 @@ import { Profile as ProfileType } from "../types";
 import { levelName, muscleName, variants } from "../data/options";
 import { displayName, generateRoutine } from "../logic/routine";
 import { number, profileErrors } from "../logic/validation";
-import { availableWeekdays, weekdayName } from "../logic/schedule";
+import { availableWeekdays, localDateKey, weekdayName } from "../logic/schedule";
+import { Avatar, AvatarSelect } from "../components/Avatar";
+import { GoogleSignIn } from "../components/GoogleSignIn";
 export default function Profile() {
   const { state, update } = useStore();
   const [editing, setEditing] = useState(false);
@@ -32,7 +34,7 @@ export default function Profile() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const change = (p: Partial<ProfileType>) => {
-    setProfile((old) => ({ ...old, ...p, ...(p.level && p.level !== "advanced" ? { mesocycle: false } : {}) }));
+    setProfile((old) => ({ ...old, ...p }));
     setErrors({});
   };
   const save = () => {
@@ -45,17 +47,19 @@ export default function Profile() {
       setMessage(messages.Profile.seleccionaAlMenosUnTipoDeEquipamiento);
       return;
     }
-    const planChanged = ["sex", "level", "days", "priority", "mesocycle", "includeGlutes"].some(key => profile[key as keyof ProfileType] !== state.profile[key as keyof ProfileType])
+    const planChanged = ["sex", "level", "days", "priority", "includeGlutes"].some(key => profile[key as keyof ProfileType] !== state.profile[key as keyof ProfileType])
       || JSON.stringify(profile.trainingDays) !== JSON.stringify(state.profile.trainingDays)
       || JSON.stringify(prefs) !== JSON.stringify(state.preferences);
     update((s) => ({
       ...s,
       profile,
-      programRevision: planChanged ? 2 : s.programRevision,
+      programRevision: planChanged ? 3 : s.programRevision,
       preferences: prefs,
       bodyWeights: number(s.profile.weight) === number(profile.weight) && s.bodyWeights?.length
         ? s.bodyWeights : [...(s.bodyWeights ?? []), { date: new Date().toISOString(), weight: number(profile.weight) }],
-      routine: planChanged ? generateRoutine(profile, prefs) : s.routine,
+      routine: planChanged ? generateRoutine(profile, prefs, s.volumeTargets) : s.routine,
+      plannedWorkouts: planChanged ? (s.plannedWorkouts ?? []).filter(item => new Date(item.date) < new Date(new Date().setHours(0, 0, 0, 0))) : s.plannedWorkouts,
+      skippedWorkoutDates: planChanged ? (s.skippedWorkoutDates ?? []).filter(date => date < localDateKey(new Date())) : s.skippedWorkoutDates,
     }));
     setEditing(false);
     setMessage(planChanged ? "Perfil actualizado y rutina regenerada. La sesión en curso conserva sus ejercicios." : "Datos personales actualizados.");
@@ -70,6 +74,7 @@ export default function Profile() {
       {!editing ? (
         <>
           <Card>
+            <Avatar id={state.profile.avatar} />
             <Txt size={24} weight="600">{state.profile.name || "Tu perfil"}</Txt>
             {!!state.profile.handle && <Txt muted>@{state.profile.handle}</Txt>}
             <Txt size={22} weight="600">
@@ -112,7 +117,8 @@ export default function Profile() {
             update(s => ({ ...s, signedOut: true }));
             router.replace("/");
           }} />
-          <Txt muted size={12}>Sesión local: al salir se conserva tu historial. Podrás volver con «Continuar con mi perfil»; todavía no hay autenticación de cuentas.</Txt>
+          <GoogleSignIn />
+          <Txt muted size={12}>Tu rutina e historial se conservan en este dispositivo. La cuenta de Comunidad admite Google o contraseña.</Txt>
           <Button
             label={messages.Profile.configuracionYApariencia}
             variant="secondary"
@@ -142,6 +148,7 @@ export default function Profile() {
             Los cambios personales conservan tu rutina. Cambiar nivel, disponibilidad, prioridad o equipamiento regenera el plan.
           </Notice>
           <ProfileFields profile={profile} change={change} errors={errors} />
+          <AvatarSelect value={profile.avatar} onChange={avatar => change({ avatar })} />
           <Txt weight="600">{messages.Profile.nivel}</Txt>
           <LevelSelect profile={profile} change={change} />
           <Txt weight="600">{messages.Profile.disponibilidad}</Txt>
@@ -150,7 +157,6 @@ export default function Profile() {
           <Txt weight="600">{messages.Profile.musculoPrioritario}</Txt>
           <PrioritySelect profile={profile} change={change} />
           <TrainingPreferences profile={profile} change={change} />
-          {!!errors.mesocycle && <Notice error>{errors.mesocycle}</Notice>}
           <Txt weight="600">{messages.Profile.equipamientoDeTuGimnasio}</Txt>
           {variants.map((v) => (
             <Choice

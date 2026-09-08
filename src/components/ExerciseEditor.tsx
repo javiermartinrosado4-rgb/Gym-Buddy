@@ -5,12 +5,10 @@ import { Button, Card, Choice, Field, Notice, Row, Txt } from "./ui";
 import { useStore } from "../state/Store";
 import {
   candidates,
-  canPlaceExercise,
   displayName,
-  exerciseLimit,
-  fitDay,
   getExercise,
   prescribe,
+  replacementCandidates,
 } from "../logic/routine";
 import { number, validRange, validWeight } from "../logic/validation";
 import { copy } from "../config";
@@ -23,6 +21,22 @@ import {
   Variant,
 } from "../types";
 import { muscles, variants } from "../data/options";
+import { useTheme } from "../theme";
+
+function TierBadge({ tier }: { tier: Exercise["tier"] }) {
+  const { dark } = useTheme();
+  if (!tier) return null;
+  const color = {
+    "S+": dark ? "#9CF0B1" : "#176B3A",
+    S: dark ? "#A9D5FF" : "#1E5B9E",
+    A: dark ? "#FFD480" : "#855A00",
+    B: dark ? "#D5C5FF" : "#67548A",
+  }[tier];
+  return <View style={{ borderColor: color, borderWidth: 1, borderRadius: 8, paddingHorizontal: 7, paddingVertical: 3 }}>
+    <Txt size={12} weight="600" style={{ color }}>Tier {tier}</Txt>
+  </View>;
+}
+
 export function ExerciseEditor({
   dayId,
   prescription,
@@ -57,14 +71,21 @@ export function ExerciseEditor({
       : (prefs.equipment[0] ?? "machine"),
   );
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
   const [loadStep, setLoadStep] = useState(String(original ? prefs.loadSteps?.[original.id] ?? original.loadStep ?? 1.25 : 1.25));
-  const full = !prescription && (state.routine.find(d => d.id === dayId)?.exercises.length ?? 0) >= exerciseLimit(state.profile.level);
   const day = state.routine.find((d) => d.id === dayId)!;
-  const canAdd = (exercise: Exercise) =>
-    canPlaceExercise(day, exercise, prefs, state.profile.days, prescription?.id);
+  const startCustom = (initialName = "") => {
+    setMode("custom");
+    setName(initialName);
+    setSets(String(prescription?.sets ?? 2));
+    if (original) {
+      setMuscle(original.muscle);
+      setType(original.type);
+      setMin(String(original.range[0]));
+      setMax(String(original.range[1]));
+    }
+  };
   const apply = (exercise: Exercise, unavailable = false) => {
-    if (full) return setError(`Máximo ${exerciseLimit(state.profile.level)} ejercicios por sesión. Sustituye uno existente.`);
-    if (!canAdd(exercise)) return setError("En rutinas de más de 3 días hay un máximo de 2 ejercicios pesados por sesión.");
     update((s) => {
       const preferences = {
         ...s.preferences,
@@ -89,14 +110,14 @@ export function ExerciseEditor({
                 ),
             );
             return replacement
-              ? [prescribe(replacement, preferences, p.id)]
+              ? [{ ...prescribe(replacement, preferences, p.id), sets: p.sets, range: p.range, weight: p.weight }]
               : [];
           });
         else if (d.id === dayId)
           entries = prescription
             ? entries.map((p) =>
                 p.id === prescription.id
-                  ? prescribe(exercise, preferences, p.id)
+                  ? { ...prescribe(exercise, preferences, p.id), sets: p.sets, range: p.range, weight: p.weight }
                   : p,
               )
             : [
@@ -107,12 +128,7 @@ export function ExerciseEditor({
                   `${Date.now()}-${exercise.id}`,
                 ),
               ];
-        return fitDay(
-          { ...d, exercises: entries },
-          preferences,
-          d.id === dayId ? (prescription?.id ?? entries.at(-1)?.id) : undefined,
-          s.profile.level,
-        );
+        return { ...d, exercises: entries };
       });
       return { ...s, preferences, routine };
     });
@@ -152,7 +168,6 @@ export function ExerciseEditor({
     }
   };
   const save = () => {
-    if (full) return setError(`Máximo ${exerciseLimit(state.profile.level)} ejercicios por sesión.`);
     if (![1.25, 2.5, 5, 10, 20].includes(number(loadStep))) return setError("Selecciona un incremento disponible.");
     const range: Range = [number(min), number(max)];
     const count = number(sets);
@@ -163,7 +178,7 @@ export function ExerciseEditor({
       return setError(messages.ExerciseEditor.usaUnPesoEntre0Y1000);
     if (!validRange(range))
       return setError(messages.ExerciseEditor.elRangoDebeIrDeMenorA);
-    if (!Number.isInteger(count) || count < 2 || count > 6)
+    if (!Number.isInteger(count) || count < 1 || count > 6)
       return setError(messages.ExerciseEditor.puedesProgramarEntre2Y6Series);
     const exercise: Exercise =
       mode === "custom"
@@ -215,35 +230,24 @@ export function ExerciseEditor({
         ? day.exercises.map((p) => (p.id === prescription.id ? entry : p))
         : [...day.exercises, entry],
     };
-    if (!canPlaceExercise(day, exercise, prefs, state.profile.days, prescription?.id))
-      return setError("En rutinas de más de 3 días hay un máximo de 2 ejercicios pesados por sesión.");
-    const fitted = fitDay(edited, preferences, entry.id, state.profile.level);
     update((s) => ({
       ...s,
       preferences,
       routine: s.routine.map((d) =>
         d.id === dayId
-          ? fitted
-          : fitDay(
-              {
-                ...d,
-                exercises: d.exercises.map((p) =>
-                  p.exerciseId === exercise.id
-                    ? { ...p, weight: kg, range }
-                    : p,
-                ),
-              },
-              preferences,
-              undefined,
-              state.profile.level,
-            ),
+          ? edited
+          : {
+              ...d,
+              exercises: d.exercises.map((p) =>
+                p.exerciseId === exercise.id
+                  ? { ...p, weight: kg, range }
+                  : p,
+              ),
+            },
       ),
     }));
-    const removed = edited.exercises.length - fitted.exercises.length;
     report(
-      removed
-        ? `Cambios guardados. Se han retirado ${removed} ejercicios para respetar el límite de tu nivel.`
-        : messages.ExerciseEditor.cambiosYPreferenciasGuardados,
+      messages.ExerciseEditor.cambiosYPreferenciasGuardados,
     );
     close();
   };
@@ -336,45 +340,59 @@ export function ExerciseEditor({
                 ))}
             </View>
           )}
+          {original && <Notice>Priorizamos sustituciones con el mismo patrón de movimiento cuando están disponibles.</Notice>}
+          <Field
+            label="Buscar o escribir otro ejercicio"
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Por ejemplo, jalón, press o tu propio ejercicio"
+          />
           <Txt muted size={13}>
-            {messages.ExerciseEditor.porPrioridadCompatiblesConTuNivelY}
+            {original ? "Sugerencias compatibles, ordenadas por patrón y tier." : messages.ExerciseEditor.porPrioridadCompatiblesConTuNivelY}
           </Txt>
-          {candidates(muscle, state.profile, prefs)
+          {(original
+            ? replacementCandidates(original, state.profile, prefs)
+            : candidates(muscle, state.profile, prefs))
             .filter(
               (e) =>
                 e.id !== original?.id &&
-                canAdd(e) &&
                 !state.routine
                   .find((d) => d.id === dayId)
                   ?.exercises.some(
                     (p) => p.exerciseId === e.id && p.id !== prescription?.id,
                   ),
             )
+            .filter(e => !query.trim() || displayName(e.id, prefs).toLocaleLowerCase("es").includes(query.trim().toLocaleLowerCase("es")))
             .map((e) => (
               <Choice
                 key={e.id}
                 title={displayName(e.id, prefs)}
                 description={`${e.type === "compound" ? messages.ExerciseEditor.multiarticular : messages.ExerciseEditor.aislamiento} · ${e.equipment}`}
+                trailing={<TierBadge tier={e.tier} />}
                 selected={false}
                 onPress={() => apply(e)}
               />
             ))}
-          {!candidates(muscle, state.profile, prefs).filter(
+          {!((original
+            ? replacementCandidates(original, state.profile, prefs)
+            : candidates(muscle, state.profile, prefs))).filter(
             (e) => e.id !== original?.id,
-          ).length && (
+          ).length && !query.trim() && (
             <Notice>
               {messages.ExerciseEditor.noHayMasOpcionesCompatiblesCreaUna}
             </Notice>
           )}
+          {!!query.trim() && <Button
+            label={`Crear “${query.trim()}” como ejercicio personalizado`}
+            variant="secondary"
+            icon="plus"
+            onPress={() => startCustom(query.trim())}
+          />}
           <Button
             label={messages.ExerciseEditor.crearEjercicioPersonalizado}
             variant="secondary"
             icon="plus"
-            onPress={() => {
-              setMode("custom");
-              setName("");
-              setSets("2");
-            }}
+            onPress={() => startCustom()}
           />
         </>
       )}

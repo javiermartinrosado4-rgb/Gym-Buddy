@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { palettes } from "../src/theme/palettes";
-import { catalog } from "../src/data/catalog";
+import { catalog, formatExerciseName } from "../src/data/catalog";
+import { motivationalQuoteForDate, motivationalQuotes } from "../src/content/motivation";
 import {
   demoProfile,
   emptyPreferences,
@@ -15,10 +16,12 @@ import {
   generateRoutine,
   getExercise,
   prescribe,
+  replacementCandidates,
   exerciseLimit,
   heavyExerciseCount,
   heavyExerciseLimit,
   restSeconds,
+  specializationTarget,
   weeklyTargets,
   weeklyVolume,
 } from "../src/logic/routine";
@@ -41,6 +44,7 @@ import {
   workoutStats,
   workoutTrend,
 } from "../src/logic/performance";
+import { exportRoutine, importRoutine, isSharedRoutine } from "../src/logic/sharing";
 
 const testState = (): AppState => ({ version: 1, profile: demoProfile, preferences: emptyPreferences, theme: "system", completed: true, onboardingStep: 0, routine: generateRoutine(demoProfile, emptyPreferences), history: [] });
 const recorded = (id: string, weight: number, bodyWeight = 70, date = "2026-09-07T10:00:00Z"): Workout => {
@@ -161,19 +165,68 @@ test("420 combinations respect exercise limits, compatible equipment and weekly 
           }
           for (const m of Object.keys(targets) as (keyof typeof targets)[]) {
             assert.ok(volume[m] <= targets[m]);
-            if (days >= 3) assert.equal(volume[m], targets[m], `${sex} ${level.id} ${days} ${priority.id} ${m}`);
+            if (days >= 3 && (priority.id === "balanced" || priority.id === m))
+              assert.equal(volume[m], targets[m], `${sex} ${level.id} ${days} ${priority.id} ${m}`);
           }
         }
 });
-test("glute defaults can be overridden and advanced specialization reaches 16 sets", () => {
+test("glute defaults can be overridden and specialization scales with training days", () => {
   const male = { ...demoProfile, days: 4, priority: "balanced" as const };
   assert.equal(weeklyVolume(generateRoutine(male, emptyPreferences), emptyPreferences).glutes, 0);
   assert.ok(weeklyVolume(generateRoutine({ ...male, includeGlutes: true }, emptyPreferences), emptyPreferences).glutes > 0);
   assert.equal(weeklyVolume(generateRoutine({ ...male, sex: "female", includeGlutes: false }, emptyPreferences), emptyPreferences).glutes, 0);
+  assert.equal(specializationTarget({ ...male, priority: "chest", days: 1 }), 8);
+  assert.equal(specializationTarget({ ...male, priority: "chest", days: 2 }), 10);
+  assert.equal(specializationTarget({ ...male, priority: "chest", days: 3 }), 12);
+  assert.equal(specializationTarget({ ...male, priority: "chest", days: 4 }), 14);
+  assert.equal(specializationTarget({ ...male, priority: "chest", days: 5 }), 16);
+  assert.equal(specializationTarget({ ...male, level: "beginner", priority: "chest", days: 4 }), 12);
+  assert.equal(
+    weeklyVolume(generateRoutine({ ...male, days: 5, priority: "chest", mesocycle: false }, emptyPreferences), emptyPreferences).chest,
+    16,
+  );
   for (const muscle of muscles.filter(m => m.id !== "balanced")) {
-    const p = { ...male, days: 3, level: "advanced" as const, priority: muscle.id, mesocycle: true };
+    const p = { ...male, days: 5, level: "advanced" as const, priority: muscle.id };
     assert.equal(weeklyVolume(generateRoutine(p, emptyPreferences), emptyPreferences)[muscle.id as "calves"], 16, muscle.id);
   }
+});
+test("custom volume targets allow a single prescribed set", () => {
+  const targets = {
+    chest: 1,
+    back: 0,
+    shoulders: 0,
+    biceps: 0,
+    triceps: 0,
+    glutes: 0,
+    quads: 0,
+    hamstrings: 0,
+    calves: 0,
+  };
+  const routine = generateRoutine({ ...demoProfile, days: 1 }, emptyPreferences, targets);
+  assert.equal(weeklyVolume(routine, emptyPreferences).chest, 1);
+  assert.equal(routine.flatMap(day => day.exercises).find(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "chest")?.sets, 1);
+});
+test("generation completes frequency two before lower-tier horizontal alternatives", () => {
+  const routine = generateRoutine({ ...demoProfile, days: 4, priority: "balanced" }, emptyPreferences);
+  const back = routine.flatMap(day => day.exercises)
+    .filter(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "back")
+    .map(entry => entry.exerciseId);
+  assert.equal(back.filter(id => id === "supported-row").length, 2);
+  assert.ok(back.includes("wide-pulldown"));
+  assert.ok(back.includes("neutral-pulldown"));
+  assert.ok(!back.includes("gironda-row"));
+
+  const shoulderRoutine = generateRoutine({ ...demoProfile, days: 4, priority: "balanced" }, emptyPreferences);
+  const shoulders = shoulderRoutine.flatMap(day => day.exercises)
+    .filter(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "shoulders")
+    .map(entry => entry.exerciseId);
+  assert.equal(shoulders.filter(id => id === "lateral-cable").length, 2);
+
+  const specialized = generateRoutine({ ...demoProfile, days: 5, priority: "back" }, emptyPreferences);
+  const specializedBack = specialized.flatMap(day => day.exercises)
+    .filter(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "back")
+    .map(entry => entry.exerciseId);
+  assert.ok(specializedBack.includes("gironda-row"));
 });
 test("back exposures mix horizontal and vertical pulls and heavy exercises lead", () => {
   const routine = generateRoutine({ ...demoProfile, days: 4 }, emptyPreferences);
@@ -184,6 +237,45 @@ test("back exposures mix horizontal and vertical pulls and heavy exercises lead"
     if (d.exercises.some(p => getExercise(p.exerciseId, emptyPreferences).type === "compound"))
       assert.equal(getExercise(d.exercises[0].exerciseId, emptyPreferences).type, "compound");
   }
+});
+test("abdominal work is assigned to leg days when the split has them", () => {
+  const routine = generateRoutine({ ...demoProfile, days: 4, priority: "balanced" }, emptyPreferences);
+  const daysWithAbs = routine.filter(day => day.exercises.some(entry =>
+    getExercise(entry.exerciseId, emptyPreferences).muscle === "abs",
+  ));
+  assert.ok(daysWithAbs.length > 0);
+  assert.ok(daysWithAbs.every(day => day.name.startsWith("Pierna")));
+});
+test("quad generation selects one hack pattern and uses leg press for added heavy volume", () => {
+  const routine = generateRoutine(
+    { ...demoProfile, days: 4, level: "advanced", priority: "balanced" },
+    emptyPreferences,
+    { chest: 0, back: 0, shoulders: 0, biceps: 0, triceps: 0, glutes: 0, quads: 16, hamstrings: 0, calves: 0, abs: 0 },
+  );
+  const quads = routine.flatMap(day => day.exercises)
+    .filter(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "quads")
+    .map(entry => entry.exerciseId);
+  assert.equal(new Set(quads.filter(id => id === "hack" || id === "pendulum")).size, 1);
+  assert.ok(quads.includes("leg-press"));
+  assert.equal(getExercise("leg-press", emptyPreferences).tier, "S");
+});
+test("replacement suggestions preserve pull and press movement patterns", () => {
+  const pulldown = getExercise("wide-pulldown", emptyPreferences);
+  const pullSuggestions = replacementCandidates(pulldown, demoProfile, emptyPreferences);
+  const firstHorizontal = pullSuggestions.findIndex(e => e.pullPattern === "horizontal");
+  const lastVertical = pullSuggestions.reduce((last, e, index) => e.pullPattern === "vertical" ? index : last, -1);
+  assert.ok(lastVertical >= 0);
+  assert.ok(firstHorizontal < 0 || lastVertical < firstHorizontal);
+
+  const chestPress = getExercise("chest-press", emptyPreferences);
+  const chestSuggestions = replacementCandidates(chestPress, demoProfile, emptyPreferences);
+  const firstNonPress = chestSuggestions.findIndex(e => e.type !== "compound");
+  const lastPress = chestSuggestions.reduce((last, e, index) => e.type === "compound" ? index : last, -1);
+  assert.ok(lastPress >= 0);
+  assert.ok(firstNonPress < 0 || lastPress < firstNonPress);
+
+  const shoulderPress = getExercise("shoulder-press", emptyPreferences);
+  assert.equal(replacementCandidates(shoulderPress, demoProfile, emptyPreferences)[0].type, "compound");
 });
 test("four and five-day torso plans alternate arms unless they are the priority", () => {
   for (const days of [4, 5]) {
@@ -209,6 +301,17 @@ test("four and five-day torso plans alternate arms unless they are the priority"
   }
 });
 test("catalog priority, unavailable exercises, equipment and seated curl", () => {
+  assert.equal(getExercise("standing-curl", emptyPreferences).name, "Curl Isquios Tumbado");
+  for (const exercise of catalog) {
+    assert.equal(exercise.name, formatExerciseName(exercise.name));
+    assert.doesNotMatch(exercise.name, /\b(a|al|con|de|del|en|el|la|las|los|para|por)\b/i);
+  }
+  assert.deepEqual(
+    catalog.filter(exercise => exercise.muscle === "abs").map(exercise => [exercise.id, exercise.tier]),
+    [["cable-floor-crunch", "S"], ["machine-crunch", "S"], ["machine-leg-tuck", "A"], ["machine-leg-raise", "A"]],
+  );
+  assert.equal(candidates("chest", { ...demoProfile, level: "advanced" }, emptyPreferences)[0].variant, "cable");
+  assert.equal(candidates("back", { ...demoProfile, level: "advanced" }, emptyPreferences, true)[0].id, "supported-row");
   assert.equal(
     candidates("chest", demoProfile, emptyPreferences)[0].id,
     "chest-cable",
@@ -219,7 +322,7 @@ test("catalog priority, unavailable exercises, equipment and seated curl", () =>
       { ...demoProfile, level: "beginner" },
       emptyPreferences,
     )[0].id,
-    "pec-deck",
+    "chest-press",
   );
   const prefs = {
     ...emptyPreferences,
@@ -241,21 +344,38 @@ test("catalog priority, unavailable exercises, equipment and seated curl", () =>
   );
   assert.ok(routine.some(d => d.exercises.some(e => e.exerciseId === "seated-curl")));
 });
-test("all free-weight entries except the two explicit exceptions require intermediate", () => {
+test("motivational rotation contains attributed and original gym-focused quotes", () => {
+  assert.ok(motivationalQuotes.length >= 8);
+  assert.equal(motivationalQuotes.find(quote => quote.author === "Javi")?.text,
+    "Cuando el fracaso es una opción, eventualmente se convierte en consecuencia.");
+  assert.ok(motivationalQuotes.every(quote => quote.text.length > 20));
+  assert.equal(motivationalQuoteForDate(new Date(2026, 8, 8)), motivationalQuoteForDate(new Date(2026, 8, 8)));
+});
+test("routine sharing keeps structure and exercise notes but never shares loads", () => {
+  const routine = generateRoutine(demoProfile, emptyPreferences);
+  const first = routine[0].exercises[0];
+  const preferences = { ...emptyPreferences, notes: { [first.exerciseId]: "Controla la bajada" } };
+  const shared = exportRoutine(routine, preferences);
+  assert.ok(isSharedRoutine(shared));
+  assert.equal(JSON.stringify(shared).includes("weight"), false);
+  assert.equal(shared.days[0].exercises[0].note, "Controla la bajada");
+  const imported = importRoutine(shared, { ...emptyPreferences, notes: { [first.exerciseId]: "Mi propia nota" } });
+  assert.equal(imported.routine[0].exercises[0].weight, 0);
+  assert.equal(imported.preferences.notes?.[first.exerciseId], "Mi propia nota");
+});
+test("free-weight entries require intermediate level and advanced entries remain gated", () => {
   for (const e of catalog.filter(
-    (e) =>
-      e.variant === "free" &&
-      !["lateral-dumbbell", "dumbbell-curl"].includes(e.id),
+    (e) => e.variant === "free",
   ))
     assert.notEqual(e.minLevel, "beginner");
-  for (const id of ["triceps-single", "katana-single", "kickback"])
+  for (const id of ["cable-y-raise", "pendulum", "kickback"])
     assert.equal(catalog.find((e) => e.id === id)?.minLevel, "advanced");
   assert.match(
     catalog.find((e) => e.id === "standing-calf")!.note!,
     /rodillas extendidas/,
   );
 });
-test("exercise limit preserves edited exercise and duration reflects longer rests", () => {
+test("manual exercise additions are not capped and duration reflects longer rests", () => {
   const entries = catalog
     .slice(0, 10)
     .map((e) => ({ ...prescribe(e, emptyPreferences), sets: 4 }));
@@ -264,10 +384,19 @@ test("exercise limit preserves edited exercise and duration reflects longer rest
     emptyPreferences,
     entries.at(-1)!.id,
   );
-  assert.equal(fit.exercises.length, 6);
+  assert.equal(fit.exercises.length, entries.length);
   assert.ok(duration(fit, emptyPreferences) > 60);
-  assert.ok(fit.exercises.length < entries.length);
+  assert.equal(fit.exercises.length, entries.length);
   assert.ok(fit.exercises.some((p) => p.id === entries.at(-1)!.id));
+});
+test("duration uses thirty-second sets and four or three minutes between sets", () => {
+  const heavy = prescribe(getExercise("chest-press", emptyPreferences), emptyPreferences);
+  const isolation = prescribe(getExercise("pec-deck", emptyPreferences), emptyPreferences);
+  assert.equal(restSeconds(getExercise(heavy.exerciseId, emptyPreferences)), 240);
+  assert.equal(restSeconds(getExercise(isolation.exerciseId, emptyPreferences)), 180);
+  assert.equal(duration({ id: "heavy", name: "Pesado", exercises: [{ ...heavy, sets: 2 }] }, emptyPreferences), 36);
+  assert.equal(duration({ id: "isolation", name: "Aislamiento", exercises: [{ ...isolation, sets: 2 }] }, emptyPreferences), 36);
+  assert.equal(duration({ id: "mixed", name: "Mixto", exercises: [{ ...heavy, sets: 2 }, { ...isolation, sets: 2 }] }, emptyPreferences), 36);
 });
 test("double progression: all effective sets, configurable range, 5% and 3%", () => {
   assert.equal(

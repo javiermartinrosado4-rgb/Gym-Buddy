@@ -10,9 +10,9 @@ export const messages = {
     hazleEspacioATuRutina: "Hazle espacio a tu rutina",
     cuantosDiasPuedesEntrenarNormalmenteCadaSemana:
       "¿Cuántos días puedes entrenar normalmente cada semana?",
-    unPocoMasDeAtencion: "Un poco más de atención",
+    unPocoMasDeAtencion: "Especializa un músculo",
     daremosUnProtagonismoModeradoAEsteMusculo:
-      "Daremos un protagonismo moderado a este músculo, sin desequilibrar tu rutina. Disponible para todos los niveles.",
+      "El volumen se adapta automáticamente a tus días disponibles. Desde 4 días se orienta hacia 16 series en nivel intermedio o avanzado.",
     atras: "Atrás",
     tuPlan: "TU PLAN · ",
     de4: " DE 4",
@@ -153,7 +153,7 @@ export const messages = {
     dosSeriesQueCuentan: "Series que cuentan",
     seriesEfectivasConTecnicaYProgresion:
       "Series efectivas, con técnica y progresión.",
-    siemprePorDebajoDe60Min: "Descansos de 3 a 5 minutos",
+    siemprePorDebajoDe60Min: "Descansos de 4 y 3 minutos",
     sesionesDisenadasParaAprovecharTuTiempo:
       "Sesiones diseñadas para aprovechar tu tiempo.",
     continuarMiRutina: "Continuar mi rutina",
@@ -168,7 +168,7 @@ export const messages = {
     entrenamientoGuardado: "ENTRENAMIENTO GUARDADO",
     revisaLasCargasParaTuProximaSesion:
       "Las cargas de tu próxima sesión ya están preparadas. Podrás ajustarlas dentro de cada serie.",
-    volverAHoy: "Volver a Hoy",
+    volverAHoy: "Volver a Entrenamiento",
     completaCadaSerieConUnPesoValido:
       "Completa cada serie con un peso válido (saltos de 0,25 kg) y entre 1 y 100 repeticiones enteras.",
     guardarYSalir: "Guardar y salir",
@@ -189,7 +189,7 @@ export const messages = {
     preferenciaGuardadaHemosSustituidoEsteEjercicioEn:
       "Preferencia guardada. Hemos sustituido este ejercicio en toda la rutina.",
     ejercicioGuardadoElPlanSeAjustaAutomaticamente:
-      "Ejercicio guardado. Se respeta el límite de ejercicios de tu nivel.",
+      "Ejercicio guardado. Tu rutina conserva todos los ejercicios que añadas.",
     noQuedanSustitucionesCompatiblesParaEsteMusculo:
       "No quedan sustituciones compatibles para este músculo. Añade un ejercicio personalizado o revisa el equipamiento en Perfil.",
     escribeUnNombreParaElEjercicio: "Escribe un nombre para el ejercicio.",
@@ -198,7 +198,7 @@ export const messages = {
     elRangoDebeIrDeMenorA:
       "El rango debe ir de menor a mayor, con repeticiones enteras entre 1 y 30.",
     puedesProgramarEntre2Y6Series:
-      "Puedes programar entre 2 y 6 series efectivas.",
+      "Puedes programar entre 1 y 6 series efectivas.",
     losEjerciciosPersonalizadosDePesoLibreRequieren:
       "Los ejercicios personalizados de peso libre requieren al menos nivel intermedio. Puedes elegir una variante guiada.",
     eligeUnEquipamientoDisponibleEnTuGimnasio:

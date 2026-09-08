@@ -44,3 +44,7 @@ yarn-error.*
 test-results/
 playwright-report/
 *.log
+
+# Community server: accounts and uploaded photos
+server/data/
+.env

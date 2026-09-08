@@ -5,6 +5,7 @@ import { APP, copy } from "../config";
 import { useStore } from "../state/Store";
 import { useTheme } from "../theme";
 import { Button, Heading, Icon, Page, Pill, Row, Txt } from "../components/ui";
+import { GoogleSignIn } from "../components/GoogleSignIn";
 export default function Welcome() {
   const { state, update } = useStore();
   const { colors } = useTheme();
@@ -12,7 +13,8 @@ export default function Welcome() {
   if (state.signedOut) return <Page>
     <Heading title="Gym Buddy" subtitle="Has cerrado tu sesión local. Tus entrenamientos están guardados en este dispositivo." />
     <Button label="Continuar con mi perfil" onPress={() => { update(s => ({ ...s, signedOut: false })); router.replace("/today"); }} />
-    <Txt muted size={12}>Este acceso local no tiene contraseña. Las cuentas llegarán con Comunidad.</Txt>
+    <GoogleSignIn enter />
+    <Txt muted size={12}>El perfil local se conserva en este dispositivo. Google permite acceder a tu cuenta de Comunidad.</Txt>
   </Page>;
   return (
     <Page>
@@ -141,6 +143,7 @@ export default function Welcome() {
         icon="arrow-right"
         onPress={() => router.push("/onboarding")}
       />
+      <GoogleSignIn enter />
       <Txt size={12} muted style={{ textAlign: "center" }}>
         {messages.Welcome.unos2Minutos}
         {copy.local}

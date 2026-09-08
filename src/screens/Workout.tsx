@@ -20,6 +20,7 @@ import { number, validWeight } from "../logic/validation";
 import { ExerciseRecord, SetRecord } from "../types";
 import { WeightSuggestion } from "../components/WeightSuggestion";
 import { useTheme } from "../theme";
+import { Calories } from "../components/Calories";
 
 const draftFromRecord = (sets: SetRecord[]) =>
   sets.map((set) => ({ weight: String(set.weight), reps: String(set.reps) }));
@@ -50,6 +51,7 @@ export default function Workout() {
         {workout && (
           <>
             <Pill>{messages.Workout.entrenamientoGuardado}</Pill>
+            <Calories workout={workout} />
             {!!workout.skipped?.length && (
               <Notice>Hoy no has podido hacer: {workout.skipped.join(", ")}. Tu rutina no se ha modificado.</Notice>
             )}
@@ -96,6 +98,16 @@ export default function Workout() {
     });
   };
 
+  const changeExerciseNote = (note: string) => {
+    update((s) => ({
+      ...s,
+      preferences: {
+        ...s.preferences,
+        notes: { ...(s.preferences.notes ?? {}), [entry.exerciseId]: note.slice(0, 300) },
+      },
+    }));
+  };
+
   const goTo = (
     target: number,
     records = active.records,
@@ -104,9 +116,10 @@ export default function Workout() {
   ) => {
     const targetEntry = active.day.exercises[target];
     const saved = records.find((record) => record.prescription.id === targetEntry.id);
-    const draft =
+    const savedDraft =
       nextDrafts[targetEntry.id] ??
       (saved ? draftFromRecord(saved.sets) : draftFor(targetEntry));
+    const draft = draftFor(targetEntry).map((blank, index) => savedDraft[index] ?? blank);
     update((s) =>
       s.active
         ? {
@@ -148,6 +161,8 @@ export default function Workout() {
     });
     update((s) =>
       finishWorkout(s, {
+        level: active.level,
+        startedAt: active.startedAt,
         bodyWeight: active.bodyWeight ?? number(s.profile.weight),
         id: `session-${Date.now()}`,
         dayId: active.day.id,
@@ -278,10 +293,19 @@ export default function Workout() {
       {completed.has(entry.id) && <Pill>Ejercicio registrado · puedes corregirlo</Pill>}
       {isSkipped && <Pill>Omitido por hoy · puedes volver y registrarlo</Pill>}
       <Pill>
-        Descanso: 3–5 min · recomendado {restSeconds(exercise) / 60} min
+        Descanso recomendado: {restSeconds(exercise) / 60} min
       </Pill>
       <Notice>{messages.Workout.hazElCalentamientoYLasAproximacionesQue}</Notice>
       {exercise.note && <Notice>{exercise.note}</Notice>}
+      <Field
+        label="Notas para este ejercicio"
+        value={state.preferences.notes?.[entry.exerciseId] ?? ""}
+        onChangeText={changeExerciseNote}
+        placeholder="Por ejemplo: mantener el pecho apoyado y no elevar los hombros"
+        multiline
+        maxLength={300}
+      />
+      <Txt size={12} muted>Se guarda como referencia para este ejercicio.</Txt>
       {active.draft.map((set, index) => (
         <Card key={`${entry.id}-${index}`}>
           <Txt weight="600">

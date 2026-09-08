@@ -30,7 +30,7 @@ export function Txt({
   style?: TextStyle;
 } & Pick<
   React.ComponentProps<typeof Text>,
-  "accessibilityRole" | "accessibilityLiveRegion" | "testID"
+  "accessibilityRole" | "accessibilityLiveRegion" | "testID" | "numberOfLines" | "ellipsizeMode"
 >) {
   const { colors } = useTheme();
   return (
@@ -153,6 +153,7 @@ export function Choice({
   onPress,
   disabled,
   icon,
+  trailing,
   multiple = false,
 }: {
   title: string;
@@ -161,6 +162,7 @@ export function Choice({
   onPress: () => void;
   disabled?: boolean;
   icon?: React.ComponentProps<typeof Feather>["name"];
+  trailing?: React.ReactNode;
   multiple?: boolean;
 }) {
   const { colors } = useTheme();
@@ -215,6 +217,7 @@ export function Choice({
           </Txt>
         )}
       </View>
+      {trailing}
       <View
         style={{
           width: 20,
@@ -240,6 +243,9 @@ export function Field({
   suffix,
   numeric = false,
   placeholder,
+  secure = false,
+  maxLength,
+  multiline = false,
 }: {
   label: string;
   value: string;
@@ -248,6 +254,9 @@ export function Field({
   suffix?: string;
   numeric?: boolean;
   placeholder?: string;
+  secure?: boolean;
+  maxLength?: number;
+  multiline?: boolean;
 }) {
   const { colors } = useTheme();
   const [focus, setFocus] = useState(false);
@@ -280,14 +289,19 @@ export function Field({
           onBlur={() => setFocus(false)}
           placeholder={placeholder}
           placeholderTextColor={colors.muted}
-          maxLength={numeric ? 8 : 80}
+          maxLength={maxLength ?? (numeric ? 8 : 80)}
+          secureTextEntry={secure}
+          multiline={multiline}
+          autoCapitalize={secure ? "none" : "sentences"}
+          autoCorrect={!secure}
           style={{
             flex: 1,
             minWidth: 0,
-            minHeight: 50,
+            minHeight: multiline ? 96 : 50,
             padding: 14,
             color: colors.text,
             fontSize: 16,
+            textAlignVertical: multiline ? "top" : "center",
           }}
         />
         {suffix && (
@@ -296,7 +310,7 @@ export function Field({
           </Txt>
         )}
       </View>
-      {error && (
+      {!!error && (
         <Txt
           accessibilityLiveRegion="polite"
           size={12}

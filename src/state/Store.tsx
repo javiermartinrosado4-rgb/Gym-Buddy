@@ -9,6 +9,7 @@ import React, {
 import { AppState } from "../types";
 import { emptyPreferences, emptyProfile } from "../data/options";
 import { localRepository } from "../storage/repository";
+import { resumeWorkout } from "../logic/workout";
 export const initialState: AppState = {
   version: 1,
   profile: emptyProfile,
@@ -93,7 +94,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         update: (fn) => {
           if (blocked.current) return;
           dirty.current = true;
-          setState(fn);
+          setState(previous => {
+            const next = fn(previous);
+            return next.active ? { ...next, active: resumeWorkout(next) } : next;
+          });
         },
       }}
     >

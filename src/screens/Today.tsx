@@ -15,10 +15,10 @@ import {
 } from "../components/ui";
 import { useStore } from "../state/Store";
 import { displayName, duration } from "../logic/routine";
-import { startWorkout } from "../logic/workout";
+import { isActiveWorkoutOnDate, resumeWorkout, startWorkout } from "../logic/workout";
 import {
   routineSchedule,
-  scheduledDay,
+  scheduledWorkout,
   weekdayName,
   workoutsOnDate,
 } from "../logic/schedule";
@@ -28,6 +28,9 @@ import {
   workoutTrend,
 } from "../logic/performance";
 import { useTheme } from "../theme";
+import { Calories } from "../components/Calories";
+import { RoutineOverview } from "./Routine";
+import { motivationalQuoteForDate } from "../content/motivation";
 
 const formatNumber = (value: number) =>
   value.toLocaleString("es", { maximumFractionDigits: 0 });
@@ -36,7 +39,9 @@ export default function Today() {
   const { state, update } = useStore();
   const { colors } = useTheme();
   const now = new Date();
-  const planned = scheduledDay(state.profile, state.routine, now);
+  const quote = motivationalQuoteForDate(now);
+  const planned = scheduledWorkout(state.profile, state.routine, state.plannedWorkouts, now, state.skippedWorkoutDates);
+  const activeToday = isActiveWorkoutOnDate(state.active, now) ? state.active : undefined;
   const todayWorkouts = workoutsOnDate(state.history, now);
   const completed = [...todayWorkouts]
     .reverse()
@@ -46,7 +51,7 @@ export default function Today() {
           (!workout.dayId && workout.dayName === planned.name)
         : true,
     );
-  const session = state.active?.day ?? (completed
+  const session = activeToday?.day ?? (completed
     ? state.routine.find((day) => day.id === completed.dayId) ?? planned
     : planned);
   const latestStats = completed ? workoutStats(completed) : undefined;
@@ -87,7 +92,7 @@ export default function Today() {
           month: "long",
         }).format(now)}
         title={
-          state.active
+          activeToday
             ? "Entrenamiento en curso"
             : completed
               ? "Sesión terminada"
@@ -96,7 +101,7 @@ export default function Today() {
                 : "Hoy toca recuperar"
         }
         subtitle={
-          state.active
+          activeToday
             ? "Puedes continuar exactamente donde lo dejaste."
             : completed
               ? "Aquí tienes el resumen de tu entrenamiento y tu tendencia."
@@ -107,6 +112,10 @@ export default function Today() {
                   : "No hay una sesión programada para hoy."
         }
       />
+      <Card style={{ padding: 18 }}>
+        <Txt size={16} weight="600">“{quote.text}”</Txt>
+        {quote.author && <Txt muted size={12} style={{ marginTop: 6 }}>— {quote.author}</Txt>}
+      </Card>
 
       {session && (
         <Card
@@ -117,7 +126,7 @@ export default function Today() {
           }}
         >
           <Pill>
-            {state.active
+            {activeToday
               ? "SESIÓN EN CURSO"
               : completed
                 ? "SESIÓN TERMINADA"
@@ -149,22 +158,22 @@ export default function Today() {
               </Txt>
             </Row>
           ))}
-          {!completed && (
+          {(activeToday || !completed) && (
             <Button
               label={
-                state.active
+                activeToday
                   ? messages.Today.continuarEntrenamiento
                   : messages.Today.iniciarEntrenamiento
               }
               icon="play"
-              disabled={!state.active && !session.exercises.length}
+              disabled={!activeToday && !session.exercises.length}
               onPress={() => {
-                if (!state.active)
                   update((stateBeforeStart) => ({
                     ...stateBeforeStart,
-                    active: startWorkout(
+                    active: activeToday ? resumeWorkout(stateBeforeStart) : startWorkout(
                       session,
                       stateBeforeStart.profile.weight,
+                      stateBeforeStart.profile.level,
                     ),
                   }));
                 router.push("/workout");
@@ -172,7 +181,7 @@ export default function Today() {
             />
           )}
           <Button
-            label={messages.Today.verMiRutinaCompleta}
+            label="Ver calendario"
             variant="ghost"
             compact
             onPress={() => router.replace("/routine")}
@@ -188,7 +197,7 @@ export default function Today() {
             Tu calendario se puede cambiar en Perfil. Para recuperarte, procura dormir 8 horas cada noche, acostándote y levantándote a los mismos horarios. Mantén una alimentación suficiente.
           </Txt>
           <Button
-            label="Ver calendario semanal"
+            label="Abrir calendario"
             variant="secondary"
             onPress={() => router.replace("/routine")}
           />
@@ -198,6 +207,7 @@ export default function Today() {
       {completed && latestStats && trend && (
         <>
           <Txt weight="600" size={18}>Tu último entrenamiento</Txt>
+          <Calories workout={completed} />
           <Row>
             <Card style={{ flex: 1 }}>
               <Txt size={26} weight="500">{latestStats.sets}</Txt>
@@ -256,6 +266,7 @@ export default function Today() {
         </>
       )}
 
+      <RoutineOverview />
       {!completed && (
         <>
           <Row>
