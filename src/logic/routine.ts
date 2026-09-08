@@ -89,6 +89,11 @@ export const restSeconds = (e: Exercise) => (e.type === "compound" ? 240 : 180);
 export const exerciseLimit = (level: Level) => level === "beginner" ? 5 : 6;
 export const heavyExerciseLimit = (days: number) => (days > 3 ? 2 : Infinity);
 export const isHeavyExercise = (exercise: Exercise) => exercise.type === "compound";
+export const isFullBodyDay = (day: Day) => day.name.startsWith("Full body");
+// Full-body sessions are deliberately kept below the fatigue of a full split:
+// three multi-joint lifts at most, with the rest of the work kept lighter.
+export const automaticHeavyExerciseLimit = (day: Day, days: number) =>
+  isFullBodyDay(day) ? 3 : heavyExerciseLimit(days);
 export function heavyExerciseCount(day: Day, prefs: Preferences) {
   return day.exercises.filter((p) => isHeavyExercise(getExercise(p.exerciseId, prefs))).length;
 }
@@ -198,6 +203,10 @@ export function generateRoutine(
   const used: Partial<Record<Muscle, number>> = {};
   let lastPull: Exercise["pullPattern"] = "vertical";
   const allowed = (day: Day, muscle: Muscle) => {
+    // Calves and abs are worthwhile, but they make a full-body session longer
+    // without being central to its main multi-joint work. They belong on lower
+    // split days instead; users can still add them manually whenever desired.
+    if (isFullBodyDay(day) && (muscle === "calves" || muscle === "abs")) return false;
     const isSpecialization = profile.priority !== "balanced" && profile.priority === muscle;
     if (isSpecialization) return true;
     if (count > 3 && (muscle === "biceps" || muscle === "triceps") && profile.priority !== muscle) {
@@ -234,7 +243,7 @@ export function generateRoutine(
     if (currentVolume(muscle) >= targets[muscle]) return false;
     let options = candidates(muscle, profile, prefs, true).filter(e =>
       !day.exercises.some(p => p.exerciseId === e.id) &&
-      canPlaceExercise(day, e, prefs, count) &&
+      (!isHeavyExercise(e) || heavyExerciseCount(day, prefs) < automaticHeavyExerciseLimit(day, count)) &&
       canUseExercise(day, e),
     );
     if (muscle === "back") {
@@ -294,7 +303,9 @@ export function generateRoutine(
     if (e.pullPattern) lastPull = e.pullPattern;
     return true;
   };
-  const muscles: Muscle[] = ["quads", "chest", "back", "hamstrings", "glutes", "shoulders", "calves", "abs", "biceps", "triceps"];
+  // Put glutes next to the other lower-body staples so their base work lands
+  // on the leg day before a full-body day spends its limited heavy slots.
+  const muscles: Muscle[] = ["quads", "glutes", "chest", "back", "hamstrings", "shoulders", "calves", "abs", "biceps", "triceps"];
   if (profile.priority !== "balanced") muscles.sort((a, b) => Number(b === profile.priority) - Number(a === profile.priority));
   if (profile.priority !== "balanced") {
     for (const day of days.slice(0, 3)) add(day, profile.priority);

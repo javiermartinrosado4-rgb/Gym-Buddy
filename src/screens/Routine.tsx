@@ -296,11 +296,12 @@ export function RoutineOverview() {
       <Card>
         <Txt weight="600" size={18}>Series semanales por grupo muscular</Txt>
         <Txt muted size={12}>Programadas / objetivo. Se cuentan las series directas, sin duplicar el trabajo de músculos secundarios.</Txt>
-        {Object.entries(targets).map(([muscle, target]) => <Txt key={muscle} size={13}>
-          {muscleName(muscle as keyof typeof targets)}: {volume[muscle as keyof typeof volume]} / {target}
-          {volume[muscle as keyof typeof volume] < target ? " · objetivo pendiente" : ""}
-        </Txt>)}
-        {Object.entries(targets).some(([m, t]) => volume[m as keyof typeof volume] < t) && <Notice>La estructura automática inicial no alcanza todo el volumen objetivo con tus días y equipamiento. Puedes añadir los ejercicios que necesites o regenerar la rutina con otro reparto.</Notice>}
+        {Object.entries(targets).map(([muscle, target]) => {
+          const programmed = volume[muscle as keyof typeof volume];
+          return <Txt key={muscle} size={13}>
+            {muscleName(muscle as keyof typeof targets)}: {programmed} / {programmed === 0 ? 0 : target}
+          </Txt>;
+        })}
       </Card>
       <Card>
         <Txt weight="600" size={18}>Comparte tu rutina</Txt>

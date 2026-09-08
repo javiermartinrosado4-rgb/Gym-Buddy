@@ -155,6 +155,16 @@ const entries: Exercise[] = [
     ["biceps"],
   ),
   e(
+    "assisted-pullup",
+    "Dominadas asistidas",
+    "back",
+    2.3,
+    "beginner",
+    "compound",
+    "machine",
+    ["biceps"],
+  ),
+  e(
     "t-row",
     "Remo en T con apoyo en máquina",
     "back",

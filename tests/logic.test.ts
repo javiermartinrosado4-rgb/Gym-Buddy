@@ -20,6 +20,7 @@ import {
   exerciseLimit,
   heavyExerciseCount,
   heavyExerciseLimit,
+  isFullBodyDay,
   restSeconds,
   specializationTarget,
   weeklyTargets,
@@ -238,6 +239,21 @@ test("back exposures mix horizontal and vertical pulls and heavy exercises lead"
       assert.equal(getExercise(d.exercises[0].exerciseId, emptyPreferences).type, "compound");
   }
 });
+test("full-body sessions cap fatigue, avoid calves and abs, and alternate muscles", () => {
+  for (const days of [1, 2, 3]) {
+    const routine = generateRoutine({ ...demoProfile, days, priority: "balanced" }, emptyPreferences);
+    const fullBodyDays = routine.filter(isFullBodyDay);
+    assert.ok(fullBodyDays.length > 0);
+    for (const day of fullBodyDays) {
+      const exercises = day.exercises.map(entry => getExercise(entry.exerciseId, emptyPreferences));
+      assert.ok(heavyExerciseCount(day, emptyPreferences) <= 3);
+      assert.ok(exercises.filter(exercise => exercise.type === "isolation").length >= 2);
+      assert.ok(!exercises.some(exercise => exercise.muscle === "calves" || exercise.muscle === "abs"));
+      for (let index = 1; index < exercises.length; index++)
+        assert.notEqual(exercises[index - 1].muscle, exercises[index].muscle);
+    }
+  }
+});
 test("abdominal work is assigned to leg days when the split has them", () => {
   const routine = generateRoutine({ ...demoProfile, days: 4, priority: "balanced" }, emptyPreferences);
   const daysWithAbs = routine.filter(day => day.exercises.some(entry =>
@@ -312,6 +328,9 @@ test("catalog priority, unavailable exercises, equipment and seated curl", () =>
   );
   assert.equal(candidates("chest", { ...demoProfile, level: "advanced" }, emptyPreferences)[0].variant, "cable");
   assert.equal(candidates("back", { ...demoProfile, level: "advanced" }, emptyPreferences, true)[0].id, "supported-row");
+  assert.equal(getExercise("assisted-pullup", emptyPreferences).pullPattern, "vertical");
+  assert.ok(!candidates("back", { ...demoProfile, level: "beginner" }, emptyPreferences).some(e => e.id === "pronated-pullup" || e.id === "neutral-pullup"));
+  assert.ok(candidates("back", { ...demoProfile, level: "beginner" }, emptyPreferences).some(e => e.id === "assisted-pullup"));
   assert.equal(
     candidates("chest", demoProfile, emptyPreferences)[0].id,
     "chest-cable",

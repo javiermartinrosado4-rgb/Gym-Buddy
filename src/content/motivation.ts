@@ -11,13 +11,14 @@ export const motivationalQuotes: MotivationalQuote[] = [
   { text: "Si solo haces lo que sabes hacer, jamás serás más de lo que eres hoy." },
   { text: "No temes a fallar. Temes que vean tus fallos." },
   { text: "El paso más importante que puede dar un hombre es el siguiente.", author: "Dalinar Kholin" },
-  { text: "Envidia a nadie: aquello que ves tuvo un precio." },
+  { text: "Envy no man. For whatever you see, a price was paid." },
   { text: "Cuando uno hace todo lo que puede, no está obligado a más." },
   { text: "La comodidad es la peor adicción.", author: "Marco Aurelio" },
-  { text: "La estructura vale más que la disciplina." },
-  { text: "No te disculpes. Mejora." },
-  { text: "No puedes controlar el viento, pero sí ajustar tus velas." },
+  { text: "Structure is way better than discipline" },
+  { text: "Don't be sorry, be better." },
+  { text: "You can't control the wind, but you can adjust your sails" },
   { text: "Lo que hoy pesa, mañana será parte de tu base." },
+  { text: "Do or do not, there is no try.", author: "Yoda" },
 ];
 
 /** A deterministic daily choice keeps the phrase steady while navigating. */

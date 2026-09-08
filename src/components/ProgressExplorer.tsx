@@ -13,7 +13,7 @@ export function ProgressExplorer() {
   const { state, update } = useStore();
   const { colors, dark } = useTheme();
   const [selected, setSelected] = useState<string[]>([]);
-  const [period, setPeriod] = useState(90);
+  const [period, setPeriod] = useState<"month" | "year" | "all">("month");
   const [now] = useState(Date.now);
   const [weight, setWeight] = useState(state.profile.weight);
   const [message, setMessage] = useState("");
@@ -21,7 +21,15 @@ export function ProgressExplorer() {
   const palette = dark ? ["#8ABCF4", "#FFB47A", "#D1A4EA", "#71D6CC", "#F69EAB", "#DDD071"] : ["#2864A5", "#A54A16", "#8249A1", "#167D79", "#B13A5C", "#7D7014"];
   const exercises = allExercises(state.preferences);
   const ids = [...new Set([...state.history.flatMap(w => w.records.map(r => r.prescription.exerciseId)), ...state.routine.flatMap(d => d.exercises.map(p => p.exerciseId))])];
-  const cutoff = period ? now - period * 86_400_000 : -Infinity;
+  const periodStart = new Date(now);
+  if (period === "month") {
+    periodStart.setDate(1);
+    periodStart.setHours(0, 0, 0, 0);
+  } else if (period === "year") {
+    periodStart.setMonth(0, 1);
+    periodStart.setHours(0, 0, 0, 0);
+  }
+  const cutoff = period === "all" ? -Infinity : periodStart.getTime();
   const filter = (points: ChartPoint[]) => points.filter(p => Date.parse(p.date) >= cutoff);
   const series: ChartSeries[] = [
     { id: "body", name: "Peso corporal", color: colors.text, primary: true, points: filter(bodyWeightProgress(state)) },
@@ -31,7 +39,13 @@ export function ProgressExplorer() {
   return <>
     <Txt weight="600" size={22}>Gráficas</Txt>
     <Row style={{ flexWrap: "wrap" }}>
-      {[28, 90, 0].map(days => <Button key={days} label={days ? `${days} días` : "Todo"} compact variant={period === days ? "primary" : "secondary"} onPress={() => setPeriod(days)} />)}
+      {(["month", "year", "all"] as const).map(value => <Button
+        key={value}
+        label={value === "month" ? "Este mes" : value === "year" ? "Este año" : "Todo el historial"}
+        compact
+        variant={period === value ? "primary" : "secondary"}
+        onPress={() => setPeriod(value)}
+      />)}
     </Row>
     <LineChart key={period} title="Peso corporal y cargas de entrenamiento" series={series} />
     <Card>
