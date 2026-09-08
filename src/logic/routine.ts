@@ -134,6 +134,32 @@ export function fitDay(day: Day, prefs: Preferences, preserveId?: string, level:
 const upper: Muscle[] = ["chest", "back", "shoulders", "biceps", "triceps"];
 const lower: Muscle[] = ["quads", "hamstrings", "glutes", "calves", "abs"];
 
+// These are deliberately narrower than the primary muscle. Two exercises can
+// train the same muscle while still being useful together (for example a hack
+// squat and a leg extension), but repeating the same joint action in one day
+// adds fatigue without adding much stimulus.
+export const lowerMovementFamily = (exercise: Exercise) => {
+  if (exercise.muscle === "quads") {
+    if (exercise.id === "hack" || exercise.id === "pendulum") return "quad-squat-machine";
+    if (exercise.id === "leg-extension") return "quad-extension";
+    if (exercise.id === "leg-press") return "quad-press";
+  }
+  if (exercise.muscle === "hamstrings" &&
+    ["standing-curl", "seated-curl", "lying-curl"].includes(exercise.id))
+    return "hamstring-curl";
+  return undefined;
+};
+
+const isQuadExtension = (exercise: Exercise) => exercise.id === "leg-extension";
+const isRomanianDeadlift = (exercise: Exercise) =>
+  ["rdl-bar", "rdl-dumbbell", "rdl-smith", "rdl-machine"].includes(exercise.id);
+const isHamstringMachineCurl = (exercise: Exercise) =>
+  ["standing-curl", "seated-curl", "lying-curl"].includes(exercise.id);
+const isChestPress = (exercise: Exercise) =>
+  exercise.muscle === "chest" && exercise.type === "compound";
+const isPecDec = (exercise: Exercise) =>
+  ["chest-cable", "pec-deck", "standing-cable-pec-dec"].includes(exercise.id);
+
 export const glutesEnabled = (p: Profile) => p.includeGlutes ?? (p.sex === "female" || p.priority === "glutes");
 export const specializationTarget = (p: Profile) => {
   if (p.priority === "balanced") return 0;
@@ -155,6 +181,21 @@ export function weeklyTargets(
     back: large, quads: large, hamstrings: large,
     glutes: glutesEnabled(p) ? large + (p.sex === "female" ? 2 : 0) : 0,
   };
+  // In a one- or two-day full-body plan, weekly recovery and session space
+  // are limited. Allocate the available volume from large groups down to
+  // smaller ones, with a sex-specific emphasis when the goal is balanced.
+  if (p.days <= 2) {
+    targets.chest = p.sex === "male" ? 6 : 4;
+    targets.back = p.sex === "male" ? 8 : 6;
+    targets.quads = p.sex === "female" ? 8 : 6;
+    targets.hamstrings = 4;
+    targets.glutes = glutesEnabled(p) ? (p.sex === "female" ? 8 : 4) : 0;
+    targets.shoulders = 2;
+    targets.biceps = 2;
+    targets.triceps = 2;
+    targets.calves = 0;
+    targets.abs = 0;
+  }
   if (p.priority !== "balanced") targets[p.priority] = specializationTarget(p);
   for (const muscle of [...upper, ...lower]) {
     const target = overrides?.[muscle];
@@ -177,7 +218,18 @@ export function orderExercises(entries: Prescription[], prefs: Preferences): Pre
     // Prefer a different primary muscle; within that group, heavy movements first.
     remaining.sort((a, b) => {
       const ea = getExercise(a.exerciseId, prefs), eb = getExercise(b.exerciseId, prefs);
+      const lowerRank = (exercise: Exercise) => {
+        const family = lowerMovementFamily(exercise);
+        if (exercise.muscle === "quads")
+          return family === "quad-squat-machine" ? 0 : family === "quad-extension" ? 1 : family === "quad-press" ? 2 : 3;
+        if (exercise.muscle === "hamstrings") return family === "hamstring-curl" ? 1 : 0;
+        return 0;
+      };
+      const chestRank = (exercise: Exercise) =>
+        isChestPress(exercise) ? 0 : isPecDec(exercise) ? 1 : 2;
       return Number(ea.muscle === muscle) - Number(eb.muscle === muscle)
+        || (ea.muscle === eb.muscle && ea.muscle === "chest" ? chestRank(ea) - chestRank(eb) : 0)
+        || (ea.muscle === eb.muscle ? lowerRank(ea) - lowerRank(eb) : 0)
         || Number(eb.type === "compound") - Number(ea.type === "compound");
     });
     ordered.push(remaining.shift()!);
@@ -191,7 +243,8 @@ export function generateRoutine(
 ): Day[] {
   const count = Math.min(APP.maxDays, Math.max(1, profile.days));
   const targets = weeklyTargets(profile, overrides);
-  // Keep the familiar day names/split, but allocate volume without silently trimming for time.
+  // Keep the familiar day names/split. Automatic prescriptions always start
+  // at the app's conservative two effective sets per exercise.
   const names = [
     [], ["Full body"], ["Full body A", "Full body B"],
     ["Torso", "Pierna", "Full body"],
@@ -237,6 +290,27 @@ export function generateRoutine(
     // plans choose one so progression can be tracked instead of duplicating it.
     if (overlappingQuadPatterns.has(exercise.id))
       return ![...overlappingQuadPatterns].some(id => id !== exercise.id && exerciseUses(id) > 0);
+    const family = lowerMovementFamily(exercise);
+    // Never put two curl machines for the hamstrings in one session. A hinge
+    // (RDL) remains a valid complementary movement when the target needs it.
+    if (family && day.exercises.some(p => lowerMovementFamily(getExercise(p.exerciseId, prefs)) === family))
+      return false;
+    const sameMuscle = day.exercises
+      .map(entry => getExercise(entry.exerciseId, prefs))
+      .filter(item => item.muscle === exercise.muscle);
+    if (exercise.muscle === "quads") {
+      // A second quad slot is always the extension. A third is the press;
+      // beyond that the automatic generator spreads work to another day.
+      if (sameMuscle.length === 1) return isQuadExtension(exercise);
+      if (sameMuscle.length === 2) return exercise.id === "leg-press";
+      if (sameMuscle.length >= 3) return false;
+    }
+    if (exercise.muscle === "hamstrings" && sameMuscle.length === 1 &&
+      isRomanianDeadlift(sameMuscle[0]))
+      return isHamstringMachineCurl(exercise);
+    if (exercise.muscle === "chest" && sameMuscle.length === 1 &&
+      isChestPress(sameMuscle[0]))
+      return isPecDec(exercise);
     return true;
   };
   const add = (day: Day, muscle: Muscle) => {
@@ -286,6 +360,17 @@ export function generateRoutine(
     if (muscle === "hamstrings" && (used[muscle] ?? 0) % 2 === 1) {
       options = options.sort((a, b) => Number(b.id === "seated-curl") - Number(a.id === "seated-curl"));
     }
+    if (muscle === "quads") {
+      const hasSquatMachine = day.exercises.some(p => lowerMovementFamily(getExercise(p.exerciseId, prefs)) === "quad-squat-machine");
+      const hasExtension = day.exercises.some(p => lowerMovementFamily(getExercise(p.exerciseId, prefs)) === "quad-extension");
+      // After a heavy jaca/pendulum, the useful next quad exercise is an
+      // isolation extension. If a third quad exercise is needed, use the
+      // press so the session contains three distinct patterns.
+      if (hasSquatMachine && !hasExtension)
+        options = options.sort((a, b) => Number(b.id === "leg-extension") - Number(a.id === "leg-extension"));
+      else if (hasSquatMachine && hasExtension)
+        options = options.sort((a, b) => Number(b.id === "leg-press") - Number(a.id === "leg-press"));
+    }
     // Once a Jaca or Hack Pendular plus base quad work is in place, Prensa is
     // the preferred additional heavy pattern instead of stacking similar squats.
     if (muscle === "quads" &&
@@ -295,10 +380,10 @@ export function generateRoutine(
     }
     const e = options[0];
     if (!e) return false;
-    day.exercises.push({
-      ...prescribe(e, prefs, `${day.id}-${e.id}`),
-      sets: Math.min(APP.defaultSets, targets[muscle] - currentVolume(muscle)),
-    });
+    // A generated exercise is never given a partial or inflated prescription:
+    // every automatic entry uses exactly two sets.
+    if (targets[muscle] - currentVolume(muscle) < APP.defaultSets) return false;
+    day.exercises.push(prescribe(e, prefs, `${day.id}-${e.id}`));
     used[muscle] = (used[muscle] ?? 0) + 1;
     if (e.pullPattern) lastPull = e.pullPattern;
     return true;
@@ -322,14 +407,6 @@ export function generateRoutine(
       for (const day of possible) if (add(day, muscle)) { changed = true; break; }
     }
     if (!changed) break;
-  }
-  // If exercise slots are exhausted, spread the remaining sets over existing exposures.
-  for (const muscle of muscles) {
-    const entries = days.flatMap(d => d.exercises).filter(p => getExercise(p.exerciseId, prefs).muscle === muscle);
-    let remaining = targets[muscle] - entries.reduce((sum, p) => sum + p.sets, 0);
-    while (remaining > 0 && entries.some(p => p.sets < 6)) {
-      for (const p of entries) if (remaining > 0 && p.sets < 6) { p.sets++; remaining--; }
-    }
   }
   return days.map(d => ({ ...d, exercises: orderExercises(d.exercises, prefs) }));
 }

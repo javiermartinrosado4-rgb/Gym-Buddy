@@ -10,6 +10,7 @@ La rutina y el historial se guardan en este navegador y dirección. Comunidad ti
 
 ## Funciones actuales
 
+- Fotos del equipamiento a la derecha del nombre durante la sesión, con ampliación, tonos salvia y adaptación al tema claro/oscuro. Los 83 ejercicios del catálogo comparten 40 imágenes locales según el material utilizado; los equipos personalizados sin correspondencia se identifican como tales. [Fuentes y retoques](assets/equipment/README.md).
 - Acceso web con Google, pendiente de activar el cliente OAuth: [configuración](server/GOOGLE-SETUP.md). La cuenta social no sincroniza el historial local.
 - Seis avatares prediseñados y selección de foto propia para el perfil local y social.
 - Inicio y continuación desde Hoy, respetando las series programadas y conservando registros. Una sesión terminada hoy no se reinicia.

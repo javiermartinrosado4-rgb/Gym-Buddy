@@ -125,3 +125,19 @@ test("routine regeneration accepts a one-set target and manual additions stay av
     .find((entry: { exerciseId: string }) => entry.exerciseId === "chest-press" || entry.exerciseId === "chest-cable");
   expect(chest.sets).toBe(1);
 });
+
+test("exercise replacement updates the same-day plan immediately", async ({ page }) => {
+  const state = seed();
+  state.routine[0].exercises = [prescribe(getExercise("wide-pulldown", emptyPreferences), emptyPreferences)];
+  state.plannedWorkouts = [{ date: new Date().toISOString(), dayId: state.routine[0].id, day: { ...state.routine[0], exercises: state.routine[0].exercises.map(entry => ({ ...entry, weight: 42 })) } }];
+  state.active = startWorkout(state.routine[0], "80");
+  await load(page, state);
+  await page.goto("/routine");
+  await page.getByRole("button", { name: "Editar ejercicio 1", exact: true }).click();
+  await page.getByRole("button", { name: "Sustituir ejercicio", exact: true }).click();
+  await page.getByRole("radio", { name: "JalÃ³n Neutro", exact: true }).click();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!));
+  expect(saved.routine[0].exercises[0].exerciseId).toBe("neutral-pulldown");
+  expect(saved.plannedWorkouts[0].day.exercises[0].exerciseId).toBe("neutral-pulldown");
+  expect(saved.active.day.exercises[0].exerciseId).toBe("neutral-pulldown");
+});

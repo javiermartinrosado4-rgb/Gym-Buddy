@@ -21,6 +21,7 @@ import { ExerciseRecord, SetRecord } from "../types";
 import { WeightSuggestion } from "../components/WeightSuggestion";
 import { useTheme } from "../theme";
 import { Calories } from "../components/Calories";
+import { EquipmentPhoto } from "../components/EquipmentPhoto";
 
 const draftFromRecord = (sets: SetRecord[]) =>
   sets.map((set) => ({ weight: String(set.weight), reps: String(set.reps) }));
@@ -285,11 +286,18 @@ export default function Workout() {
           onPress={() => goTo(active.index + 1)}
         />
       </Row>
-      <Heading
-        eyebrow={active.day.name}
-        title={displayName(entry.exerciseId, state.preferences)}
-        subtitle={`${entry.sets} series efectivas · ${entry.range[0]}–${entry.range[1]} repeticiones`}
-      />
+      <View style={{ gap: 12 }}>
+        <Txt size={11} weight="600" muted style={{ letterSpacing: 2 }}>{active.day.name.toUpperCase()}</Txt>
+        <View testID="workout-exercise-heading" style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Txt accessibilityRole="header" size={26} weight="600" style={{ letterSpacing: -0.8 }}>
+              {displayName(entry.exerciseId, state.preferences)}
+            </Txt>
+          </View>
+          <EquipmentPhoto key={entry.exerciseId} exerciseId={entry.exerciseId} exerciseName={displayName(entry.exerciseId, state.preferences)} />
+        </View>
+        <Txt muted>{`${entry.sets} series efectivas · ${entry.range[0]}–${entry.range[1]} repeticiones`}</Txt>
+      </View>
       {completed.has(entry.id) && <Pill>Ejercicio registrado · puedes corregirlo</Pill>}
       {isSkipped && <Pill>Omitido por hoy · puedes volver y registrarlo</Pill>}
       <Pill>

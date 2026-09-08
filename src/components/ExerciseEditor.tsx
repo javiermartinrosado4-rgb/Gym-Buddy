@@ -23,6 +23,31 @@ import {
 import { muscles, variants } from "../data/options";
 import { useTheme } from "../theme";
 
+/** Keep date-specific plans and an unfinished session aligned with the weekly routine. */
+function syncRoutineReferences(state: ReturnType<typeof useStore>["state"], routine: typeof state.routine) {
+  const plannedWorkouts = state.plannedWorkouts?.map(item => {
+    const source = routine.find(day => day.id === item.dayId || day.id === item.day.id);
+    if (!source) return item;
+    const exercises = source.exercises.map(entry => {
+      const saved = item.day.exercises.find(previous => previous.id === entry.id);
+      return saved ? { ...entry, weight: saved.weight } : entry;
+    });
+    return { ...item, dayId: source.id, day: { ...source, exercises } };
+  });
+  let active = state.active;
+  if (active) {
+    const source = routine.find(day => day.id === active!.day.id || day.name === active!.day.name);
+    if (source) {
+      const exercises = source.exercises.map(entry => {
+        const current = active!.day.exercises.find(previous => previous.id === entry.id);
+        return current ? { ...entry, weight: current.weight } : entry;
+      });
+      active = { ...active, day: { ...source, exercises } };
+    }
+  }
+  return { plannedWorkouts, active };
+}
+
 function TierBadge({ tier }: { tier: Exercise["tier"] }) {
   const { dark } = useTheme();
   if (!tier) return null;
@@ -130,7 +155,7 @@ export function ExerciseEditor({
               ];
         return { ...d, exercises: entries };
       });
-      return { ...s, preferences, routine };
+      return { ...s, preferences, routine, ...syncRoutineReferences(s, routine) };
     });
     report(
       unavailable
@@ -160,6 +185,10 @@ export function ExerciseEditor({
           ...d,
           exercises: d.exercises.filter((p) => p.exerciseId !== original.id),
         })),
+        ...syncRoutineReferences(s, s.routine.map((d) => ({
+          ...d,
+          exercises: d.exercises.filter((p) => p.exerciseId !== original.id),
+        }))),
       }));
       report(
         messages.ExerciseEditor.noQuedanSustitucionesCompatiblesParaEsteMusculo,
@@ -230,10 +259,8 @@ export function ExerciseEditor({
         ? day.exercises.map((p) => (p.id === prescription.id ? entry : p))
         : [...day.exercises, entry],
     };
-    update((s) => ({
-      ...s,
-      preferences,
-      routine: s.routine.map((d) =>
+    update((s) => {
+      const routine = s.routine.map((d) =>
         d.id === dayId
           ? edited
           : {
@@ -244,8 +271,9 @@ export function ExerciseEditor({
                   : p,
               ),
             },
-      ),
-    }));
+      );
+      return { ...s, preferences, routine, ...syncRoutineReferences(s, routine) };
+    });
     report(
       messages.ExerciseEditor.cambiosYPreferenciasGuardados,
     );
