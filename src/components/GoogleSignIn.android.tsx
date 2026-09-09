@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { router } from "expo-router";
-import { GoogleOneTapSignIn, isSuccessResponse } from "react-native-nitro-google-signin";
+import { GoogleOneTapSignIn, isSuccessResponse, isErrorWithCode, statusCodes } from "react-native-nitro-google-signin";
 import { useCommunity } from "../state/Community";
 import { useStore } from "../state/Store";
 import { communityRequest } from "../services/community";
@@ -27,6 +27,7 @@ export function GoogleSignIn({ enter = false }: { enter?: boolean }) {
       await authenticateGoogle(result.data.idToken, config.nonce);
       if (enter) router.replace(state.completed ? "/today" : "/onboarding");
     } catch (cause) {
+      if (isErrorWithCode(cause) && cause.code === statusCodes.SIGN_IN_CANCELLED) return;
       setError(cause instanceof Error ? cause.message : "No se ha podido iniciar sesión con Google. Vuelve a intentarlo.");
     } finally {
       running.current = false;

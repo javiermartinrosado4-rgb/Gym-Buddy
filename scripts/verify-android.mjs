@@ -1,0 +1,35 @@
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
+import process from "node:process";
+
+const apk = resolve(process.argv[2] || "artifacts/android/gym-buddy-release.apk");
+const aab = resolve(process.argv[3] || "artifacts/android/gym-buddy-release.aab");
+const localTools = join(process.env.USERPROFILE, ".local/gym-buddy-android");
+const javaHome = process.env.JAVA_HOME || join(localTools, "java", readdirSync(join(localTools, "java"))[0]);
+const sdk = process.env.ANDROID_HOME || join(process.env.LOCALAPPDATA, "Android/Sdk");
+const buildTools = join(sdk, "build-tools/36.0.0");
+const run = (file, args) => execFileSync(file, args, { encoding: "utf8", windowsHide: true, env: { ...process.env, JAVA_HOME: javaHome }, maxBuffer: 20 * 1024 * 1024 });
+const java = join(javaHome, "bin/java.exe");
+const signing = run(java, ["-jar", join(buildTools, "lib/apksigner.jar"), "verify", "--verbose", "--print-certs", apk]);
+const digest = signing.match(/certificate SHA-1 digest: ([a-f0-9]+)/i)?.[1].toLowerCase();
+if (digest !== "040ea0afd797f22730198cdb4295c4763ab86ab7") throw new Error("La firma APK no coincide con la original.");
+run(join(buildTools, "zipalign.exe"), ["-c", "-P", "16", "4", apk]);
+run(java, ["-jar", join(localTools, "bundletool.jar"), "validate", `--bundle=${aab}`]);
+const jarResult = run(join(javaHome, "bin/jarsigner.exe"), ["-verify", aab]);
+if (!/jar verified|jar verificado/i.test(jarResult)) throw new Error("No se ha confirmado la firma JAR del AAB.");
+const cert = run(join(javaHome, "bin/keytool.exe"), ["-printcert", "-jarfile", aab]);
+if (!cert.replaceAll(":", "").toLowerCase().includes(digest)) throw new Error("Firma AAB distinta de la APK.");
+const manifest = run(java, ["-jar", join(localTools, "bundletool.jar"), "dump", "manifest", `--bundle=${aab}`, "--module=base"]);
+if (!manifest.includes('package="com.javiermartinrosado.gymbuddy"') || !manifest.includes('android:usesCleartextTraffic="false"') ||
+    !manifest.includes('android:allowBackup="false"') || /android:debuggable="true"/.test(manifest)) throw new Error("Manifest de release inseguro.");
+const forbidden = /android\.permission\.(CAMERA|RECORD_AUDIO|READ_MEDIA_IMAGES|READ_MEDIA_VIDEO|READ_EXTERNAL_STORAGE|WRITE_EXTERNAL_STORAGE|SYSTEM_ALERT_WINDOW)/;
+if (forbidden.test(manifest)) throw new Error("Permisos inesperados en el AAB.");
+const apkManifest = run(join(buildTools, "aapt2.exe"), ["dump", "xmltree", apk, "--file", "AndroidManifest.xml"]);
+if (forbidden.test(apkManifest) || !/usesCleartextTraffic[^\n]*false/.test(apkManifest) || !/allowBackup[^\n]*false/.test(apkManifest) || /debuggable[^\n]*true/.test(apkManifest)) throw new Error("Manifest de APK inseguro.");
+const files = [apk, aab].map(path => ({ path, bytes: statSync(path).size, sha256: createHash("sha256").update(readFileSync(path)).digest("hex") }));
+const result = { checkedAt: new Date().toISOString(), certificateSha1: digest, versionCode: manifest.match(/android:versionCode="(\d+)"/)?.[1], permissions: [...manifest.matchAll(/<uses-permission[^>]*android:name="([^"]+)"/g)].map(m => m[1]), files };
+writeFileSync(join("artifacts/android", "release-verification.json"), JSON.stringify(result, null, 2));
+writeFileSync(join("artifacts/android", "release-manifest.xml"), manifest);
+console.log(JSON.stringify(result, null, 2));

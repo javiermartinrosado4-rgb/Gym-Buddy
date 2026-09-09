@@ -1,6 +1,9 @@
+import "tsx/cjs";
 import { ExpoConfig } from "expo/config";
 import APP from "./brand.json";
+import { requirePublicHttps } from "./src/logic/endpoints";
 const localAndroid = process.env.GYM_ANDROID_LOCAL === "1";
+if (!localAndroid && process.env.EXPO_PUBLIC_COMMUNITY_URL) requirePublicHttps(process.env.EXPO_PUBLIC_COMMUNITY_URL);
 const config: ExpoConfig = {
   name: APP.name,
   slug: APP.slug,
@@ -11,7 +14,7 @@ const config: ExpoConfig = {
   icon: "./assets/brand/icon.png",
   android: {
     package: "com.javiermartinrosado.gymbuddy",
-    versionCode: 1,
+    versionCode: 2,
     allowBackup: false,
     softwareKeyboardLayoutMode: "resize",
     adaptiveIcon: {
@@ -23,6 +26,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     "expo-router",
+    "expo-secure-store",
     "./plugins/withAndroidSigning",
     ["expo-splash-screen", { image: "./assets/brand/splash.png", imageWidth: 180, backgroundColor: "#F7F8F2", dark: { backgroundColor: "#121713" } }],
     ["expo-build-properties", { android: { usesCleartextTraffic: localAndroid } }],
@@ -40,5 +44,6 @@ const config: ExpoConfig = {
   ],
   web: { bundler: "metro", output: "single" },
   experiments: { typedRoutes: true },
+  extra: { communityLocalTest: localAndroid },
 };
 export default config;

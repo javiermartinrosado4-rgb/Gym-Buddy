@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { communitySession as AsyncStorage } from "../storage/communitySession";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { CommunityError, communityRequest, communityUrl, CommunityUser } from "../services/community";
 import { useStore } from "./Store";

@@ -4,11 +4,13 @@ import { resolveCommunityUrl } from "../logic/endpoints";
 import { Level } from "../types";
 import { SharedProgress, SharedRoutine } from "../logic/sharing";
 
-export const communityUrl = resolveCommunityUrl(
+function configuredCommunityUrl() { try { return resolveCommunityUrl(
   process.env.EXPO_PUBLIC_COMMUNITY_URL,
   Platform.OS === "web" && typeof window !== "undefined" ? window.location.origin : undefined,
   __DEV__ ? Constants.expoConfig?.hostUri?.split(":")[0] : undefined,
-);
+  !__DEV__ && Constants.expoConfig?.extra?.communityLocalTest !== true,
+); } catch { return ""; } }
+export const communityUrl = configuredCommunityUrl();
 export interface CommunityUser { id: string; handle: string; name: string; bio: string; avatar?: string; level: Level; posts: number; followers: number; following: number; followed: boolean; routineId?: string | null; progressVisible?: boolean; routinePublic?: boolean; progressPublic?: boolean }
 export interface CommunityPost { id: string; userId: string; handle: string; name: string; caption: string; created: string; likes: number; liked: boolean }
 export interface PostPage { posts: CommunityPost[]; next: number | null }
