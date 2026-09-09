@@ -40,7 +40,9 @@ export async function fill(label, value, scrolls = 0) {
   adb("shell", "input", "keyevent", "KEYCODE_MOVE_END");
   adb("shell", "input", "keycombination", "113", "29");
   adb("shell", "input", "text", value);
-  adb("shell", "input", "keyevent", "KEYCODE_BACK");
+  // Hardware-keyboard emulators may have no IME to dismiss; Back would leave the app.
+  if (/mInputShown=true|mIsInputViewShown=true/.test(adb("shell", "dumpsys", "input_method")))
+    adb("shell", "input", "keyevent", "KEYCODE_BACK");
   await delay(250);
 }
 export function screenshot(name) {

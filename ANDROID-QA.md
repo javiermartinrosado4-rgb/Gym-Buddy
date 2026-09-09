@@ -1,5 +1,71 @@
 # Verificación Android — 9 de septiembre de 2026
 
+## Revisión actual: versionCode 2
+
+**Estado: vista previa offline firmada. No hay backend público ni Google OAuth real
+activados; no se ha subido a Play.** Los apartados posteriores titulados Entrega y
+Comprobaciones describen la revisión histórica `versionCode` 1.
+
+| Archivo nuevo excluido de Git | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `artifacts/android/gym-buddy-offline-preview.apk` | 73793097 | `1289a061a93cd29db4f56722986b5c27a30f14861681aac75f5e32910f4bbcfd` |
+| `artifacts/android/gym-buddy-offline-preview.aab` | 52102935 | `72d6c56eefc7ba6a00078437cded144b5d3a5e3640820843ed0fe1da2b8fdc77` |
+
+Comprobación reproducible: `node scripts/verify-android.mjs artifacts/android/gym-buddy-offline-preview.apk artifacts/android/gym-buddy-offline-preview.aab`.
+Informe generado: `artifacts/android/release-verification.json`; manifest extraído
+en `artifacts/android/release-manifest.xml`. Firma original conservada, SHA-1
+`04:0E:A0:AF:D7:97:F2:27:30:19:8C:DB:42:95:C4:76:3A:B8:6A:B7`.
+
+- Compilación Gradle `assembleRelease` + `bundleRelease` correcta.
+- APK: `apksigner verify`, misma firma, `zipalign -P 16` correctos.
+- AAB: `bundletool validate`, `jarsigner -verify` y certificado coincidente correctos.
+- Manifest de ambos: paquete correcto, sin debug, `allowBackup=false`, HTTP bloqueado.
+- Permisos: INTERNET, VIBRATE, USE_BIOMETRIC, USE_FINGERPRINT y permiso interno
+  DYNAMIC_RECEIVER_NOT_EXPORTED. SecureStore declara biometría, aunque este flujo
+  guarda la sesión sin solicitar autenticación biométrica. Sin cámara, micrófono,
+  lectura global de fotos ni superposición.
+- 55 pruebas de lógica/API/configuración/restauración; tipos y lint correctos.
+- Guardia de release sin URL pública: salida 1 esperada, impide compilar por error
+  una release conectada sin backend configurado.
+- 27 pruebas web aprobadas en ejecución completa. Primer intento interrumpido por
+  Metro bloqueado; reiniciado y repetido con éxito.
+- Dependencias compatibles con Expo SDK 57. `expo-doctor`: 20/21; permanece el aviso
+  de Nitro Google Sign-In no probado por React Native Directory en New Architecture.
+- `npm audit`: 15 avisos moderados, 0 altos/críticos. Incluyen dependencias transitivas
+  de Expo (`uuid` vía `xcode`, `decode-uri-component` vía `query-string`). No se ha
+  aplicado `audit fix --force`, que propone cambios incompatibles de SDK. Pendiente
+  resolver/mitigar antes de producción, especialmente el parser de enlaces.
+- Copia Restic 0.19.1 (descarga oficial con SHA-256 verificado): backup cifrado,
+  lectura completa, restauración, integridad SQLite y limpieza de staging probados
+  sobre repositorio local sintético. No se ha probado un bucket externo.
+
+Emulador Android 16/API 36 x86_64; ningún móvil físico conectado. APK v2 instalada
+con `adb install -r`: conserva tema oscuro, una sesión y dos series de la prueba
+anterior. Navegación a Calendario/Progreso/Comunidad correcta; Google sin endpoint
+muestra indisponibilidad. Cierre forzado y arranque con Wi-Fi/datos apagados conserva
+el historial; conectividad restaurada. Capturas nuevas `artifacts/android/qa/release-v2-*`.
+Dos capturas reales revisadas visualmente para Play en `assets/play/screenshots/`.
+
+Variante separada `gym-buddy-local-test.apk`, mismo `versionCode` y firma, únicamente
+para `http://10.0.2.2:8082` en emulador: registro nativo, sesión recuperada tras cierre
+forzado mediante SecureStore, selector de fotos (apertura/cancelación/selección),
+publicación de imagen sintética y progreso compartido (1 sesión, 2 series, 35 kg × 9)
+verificados. Cierre de sesión y login nativo con contraseña recuperan el perfil,
+foto y enlaces. Compartir rutina abre la hoja de Android (cancelada sin enviar);
+su enlace abre un plan de 1 día/5 ejercicios sin pesos personales. No se sustituyó
+la rutina local. La base usada es `test-results/android-community.sqlite`, no la base
+local del usuario. El asistente de escritura manuscrita/teclado flotante de Gboard
+interfirió al principio con las coordenadas del automatizador; se cerró el tutorial
+y se usó navegación de teclado y ocultación explícita del IME. No hubo cierre por
+excepción de la app. Esta variante HTTP no es distribuible como producción.
+
+Pendientes: TLS/DNS público, despliegue Docker real (Docker no instalado en este
+equipo), copia externa/alertas, clientes Google y pruebas con cuenta real, teléfono
+ARM64, ejecución con páginas de 16 KB, ficha legal y pista interna de Play.
+Guías: `docs/DESPLIEGUE-COMUNIDAD.md`, `server/GOOGLE-SETUP.md`, `docs/GOOGLE-PLAY.md`.
+
+## Evidencia histórica: versionCode 1
+
 ## Entrega
 
 Gym Buddy 1.0.0 (versionCode 1), paquete `com.javiermartinrosado.gymbuddy`.

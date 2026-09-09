@@ -1,5 +1,30 @@
 # Acceso con Google (web y Android)
 
+## Pantallas y datos exactos pendientes
+
+Abrir https://console.cloud.google.com/auth/overview y seleccionar el proyecto
+propietario. **Google Auth Platform > Branding**: Gym Buddy, soporte, dominios y
+privacidad reales. **Audience**: público adecuado y cuentas de prueba si usa Testing.
+
+**Clients > Create client > Android**:
+
+- Nombre: Gym Buddy Android local release.
+- Paquete: `com.javiermartinrosado.gymbuddy`.
+- SHA-1 existente: `04:0E:A0:AF:D7:97:F2:27:30:19:8C:DB:42:95:C4:76:3A:B8:6A:B7`.
+
+**Clients > Create client > Web application**: cliente que será audiencia del backend
+y Credential Manager. Compartir solo el Client ID `.apps.googleusercontent.com`,
+que es público. Si se usa web, añadir su origen HTTPS exacto. El flujo de ID token
+no necesita client secret ni redirect URI de backend. Ningún secreto en `EXPO_PUBLIC_*`.
+
+Si Play App Signing distribuye con otra clave, crear también un cliente Android con
+la SHA-1 de **Play Console > Configuración > Integridad de la app > Certificado de
+la clave de firma de aplicaciones**. La clave de subida no sustituye a esa huella.
+Conservar ambas; no cambiar la firma local.
+
+Estado: código integrado; clientes reales y login Google sin confirmar. Los tests
+con verificador simulado no son evidencia de activación.
+
 1. En Google Cloud, configura la pantalla de consentimiento, el correo de asistencia y la información pública de la aplicación.
 2. Autoriza los orígenes exactos donde se abre Gym Buddy (desarrollo: `http://localhost:8081` y `http://127.0.0.1:8081`; producción: el dominio HTTPS real).
 3. Define `GYM_GOOGLE_CLIENT_ID` en el entorno del servidor con el identificador terminado en `.apps.googleusercontent.com` y reinicia el servidor de Comunidad. No se necesita un secreto de cliente para este flujo.

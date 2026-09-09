@@ -1,5 +1,11 @@
 # Gym Buddy para Android
 
+> Revisión actual: `versionCode` 2. La release conectada requiere URL pública HTTPS
+> comprobada y produce `gym-buddy-release.apk` / `.aab`. Sin hosting, usar
+> `-OfflinePreview`: produce `gym-buddy-offline-preview.apk` / `.aab`, sin Comunidad.
+> El script exige la firma existente; no crea otra si falta. Validación repetible:
+> `node scripts/verify-android.mjs RUTA_APK RUTA_AAB`.
+
 La aplicación Android comparte pantallas, rutinas, historial y lógica con la versión web. El identificador es `com.javiermartinrosado.gymbuddy`; el esquema de enlaces es `gym-buddy://`.
 
 ## Compilar en Windows
@@ -19,11 +25,11 @@ Para generar ambos formatos:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Format both
 ```
 
-Los archivos se guardan en `artifacts/android/gym-buddy-preview.apk` y `artifacts/android/gym-buddy-release.aab`. Se incluyen ARM64 (móviles actuales) y x86_64 (emulador). La APK contiene el código y los recursos: no necesita Metro ni Expo Go. La carpeta de resultados se excluye de Git.
+La release conectada se guarda en `artifacts/android/gym-buddy-release.apk` y `artifacts/android/gym-buddy-release.aab`. Se incluyen ARM64 (móviles actuales) y x86_64 (emulador). La APK contiene el código y los recursos: no necesita Metro ni Expo Go. La carpeta de resultados se excluye de Git.
 
 ## Firma y actualizaciones
 
-El script crea y reutiliza una firma en `%USERPROFILE%/.local/gym-buddy-android/signing/`. Conserva una copia privada de **toda esa carpeta**: `gym-buddy.jks` y `signing.properties`. Las contraseñas no se imprimen ni se incluyen en Git. Para actualizar una instalación conservando sus datos deben mantenerse el identificador y la firma; incrementa `android.versionCode` en `app.config.ts` para cada versión publicada.
+El script exige y reutiliza la firma existente en `%USERPROFILE%/.local/gym-buddy-android/signing/`. Conserva una copia privada de **toda esa carpeta**: `gym-buddy.jks` y `signing.properties`. Las contraseñas no se imprimen ni se incluyen en Git. Si falta, recupera la copia; no crees otra. Para actualizar una instalación conservando sus datos deben mantenerse el identificador y la firma; incrementa `android.versionCode` en `app.config.ts` para cada versión publicada.
 
 No desinstales la app para actualizar: instala encima con `adb install -r`. Los entrenamientos web y Android se almacenan por separado; los datos del navegador no aparecen automáticamente en una instalación nueva de Android. Se conserva la clave histórica de almacenamiento para futuras actualizaciones. Las cuentas y fotos de Comunidad residen en el servidor.
 

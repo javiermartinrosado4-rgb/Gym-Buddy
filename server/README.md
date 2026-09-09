@@ -1,5 +1,12 @@
 # Servidor de Comunidad
 
+Producción: seguir [la guía de operación](../docs/DESPLIEGUE-COMUNIDAD.md).
+`NODE_ENV=production` exige base absoluta persistente y `GYM_ALLOWED_ORIGINS`
+explícito (vacío para Android sin web). La sesión nativa usa SecureStore, con
+migración desde el almacenamiento anterior; web mantiene almacenamiento local.
+Copias: `server/backup-worker.ts` y Restic con restauración ensayada localmente.
+Prueba reproducible con Restic en PATH: `node --import tsx scripts/test-backup-recovery.ts`.
+
 Backend de Gym Buddy con Node 24, SQLite y procesamiento de imágenes con sharp. Las cuentas y fotografías están en `server/data/gym-buddy.sqlite`; no se incluyen en Git. El historial de entrenamiento completo sigue siendo local a cada dispositivo.
 
 ## Probar en este equipo

@@ -8,7 +8,7 @@ Estado: preparado para la ficha; **no enviado a Play Console**. Revisa los campo
 | --- | --- |
 | Nombre | Gym Buddy |
 | Paquete | `com.javiermartinrosado.gymbuddy` |
-| Versión inicial | 1.0.0 (`versionCode` 1) |
+| Versión actual | 1.0.0 (`versionCode` 2); comprobar si Play exige uno superior |
 | Categoría propuesta | Salud y bienestar |
 | Email de soporte | [EMAIL DE SOPORTE] |
 | Sitio web | [URL WEB PÚBLICA] |
@@ -34,18 +34,18 @@ Estado: preparado para la ficha; **no enviado a Play Console**. Revisa los campo
 >
 > Gym Buddy no sustituye el consejo médico, nutricional ni de entrenamiento profesional. Ajusta el ejercicio a tus necesidades y consulta a un profesional ante dolor, lesión o dudas de salud.
 
-## Recursos gráficos pendientes
+## Recursos gráficos
 
 Los iconos de Android ya están en `assets/brand/`. Para la ficha hacen falta archivos finales propios, sin texto ilegible ni marcas de terceros:
 
 | Recurso | Especificación de Play | Estado |
 | --- | --- | --- |
-| Icono de aplicación | PNG 512 × 512 | Usar/derivar de `assets/brand/icon.png` y revisar en Play Console |
+| Icono de aplicación | PNG 512 × 512 | `assets/play/icon-512.png` |
 | Imagen destacada | PNG 1024 × 500 sin transparencia | `assets/play/feature-graphic.png` preparada |
-| Capturas de teléfono | mínimo 2; PNG/JPEG, entre 320 y 3840 px por lado | Pendientes de capturas limpias de dispositivo real/emulador |
+| Capturas de teléfono | mínimo 2; PNG/JPEG, entre 320 y 3840 px por lado | `assets/play/screenshots/`: capturas reales de la APK v2 en emulador |
 | Capturas de tablet | Solo si se declara compatibilidad/promoción para tablet | Pendiente de decisión |
 
-Capturas sugeridas: pantalla Hoy, registro de series, calendario, progreso y perfil/tema. No uses perfiles reales, correos, fotos personales, contraseñas ni pantallas de funciones todavía no activadas. `artifacts/android/qa/` contiene capturas técnicas que sirven de referencia, pero hay que generar las finales con estado limpio y sin la barra/entorno de pruebas.
+Se incluyen dos capturas reales de Calendario y Progreso con datos sintéticos. No uses perfiles reales, correos, fotos personales, contraseñas ni pantallas de funciones todavía no activadas. `artifacts/android/qa/` contiene evidencias técnicas adicionales que no forman parte de la ficha. Renovar las capturas si cambia la interfaz de la versión que se envíe.
 
 ## Formulario de seguridad de datos — borrador técnico
 
@@ -62,6 +62,43 @@ No marques estos datos como definitivos hasta cerrar hosting, analytics, soporte
 No hay publicidad, venta de datos, analítica de terceros, acceso a contactos, ubicación, cámara, micrófono ni lectura completa de la galería en la APK actual. Reconfirma esto contra la versión que se vaya a subir y los SDK añadidos.
 
 ## Checklist de envío
+
+Abrir https://play.google.com/console > seleccionar/crear Gym Buddy > **Pruebas y
+lanzamiento > Pruebas > Prueba interna > Crear versión**. Solo subir el AAB conectado
+tras comprobar URL HTTPS, firma y Google real. La autorización recibida permite la
+pista interna, no producción. Si no hay sesión/permisos, guardar el material local.
+
+En **Integridad de la app** comprobar la clave de distribución de Play y registrar
+su SHA-1 en Google además de la firma local. No aceptar una nueva clave local para
+resolver un error de subida. Para primeras cuentas personales pueden existir
+requisitos de pruebas cerradas adicionales antes de solicitar acceso a producción.
+
+### Clasificación de contenido: respuestas técnicas para revisar
+
+| Tema del cuestionario IARC | Comportamiento actual |
+| --- | --- |
+| Contenido generado por usuarios / intercambio de imágenes | Sí, fotos y textos públicos en Comunidad |
+| Comunicación/interacción entre usuarios | Sí, perfiles, seguimiento y reacciones; no chat privado |
+| Violencia, sexo, lenguaje ofensivo, drogas | No incluidos en el contenido editorial; UGC requiere controles y moderación |
+| Apuestas, compras, publicidad | No implementadas |
+| Ubicación precisa o contacto con desconocidos | Sin ubicación ni contactos; perfiles públicos permiten interacción |
+| Información de salud/ejercicio | Sí, planificador de entrenamiento y estimaciones; revisar declaración de apps de salud |
+
+No asignar una edad IARC inventada: la calcula el cuestionario real de Play. El titular
+debe fijar la audiencia/edad mínima y revisar contenido UGC antes de enviar.
+
+### Bloqueos de política pendientes
+
+La API permite denunciar y borrar cuentas, pero antes de abrir UGC al público debe
+terminarse la aceptación de normas, el bloqueo de usuarios y un procedimiento de
+moderación atendido por el operador. No declarar moderación operativa sin comprobarla.
+Publicar una URL externa de solicitud de borrado además del botón dentro de la app;
+la política de privacidad no basta por sí sola si no ofrece ese procedimiento.
+Completar responsable, soporte, país del hosting, conservación y proveedores.
+
+Referencias oficiales: [pruebas internas](https://support.google.com/googleplay/android-developer/answer/9845334),
+[borrado de cuentas](https://support.google.com/googleplay/android-developer/answer/13327111),
+[requisitos de cuentas personales](https://support.google.com/googleplay/android-developer/answer/14151465).
 
 1. Crear la aplicación en Play Console con el paquete ya fijado.
 2. Completar titular, email, web, política HTTPS y clasificación de contenido con datos reales.
