@@ -216,14 +216,16 @@ test("custom volume targets never inflate generated prescriptions above two sets
   assert.ok(weeklyVolume(routine, emptyPreferences).chest <= 1);
   assert.ok(routine.flatMap(day => day.exercises).every(entry => entry.sets === 2));
 });
-test("generation completes frequency two before lower-tier horizontal alternatives", () => {
+test("generation keeps the primary horizontal back work before lower-tier alternatives", () => {
   const routine = generateRoutine({ ...demoProfile, days: 4, priority: "balanced" }, emptyPreferences);
   const back = routine.flatMap(day => day.exercises)
     .filter(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "back")
     .map(entry => entry.exerciseId);
   assert.equal(back.filter(id => id === "supported-row").length, 2);
   assert.ok(back.includes("wide-pulldown"));
-  assert.ok(back.includes("neutral-pulldown"));
+  // A chest press now occupies one of the two heavy torso slots. Keep the
+  // core horizontal pattern and at least one vertical pull, rather than
+  // filling the remaining slot with a lower-tier horizontal variation.
   assert.ok(!back.includes("gironda-row"));
 
   const shoulderRoutine = generateRoutine({ ...demoProfile, days: 4, priority: "balanced" }, emptyPreferences);
@@ -257,6 +259,20 @@ test("full-body plans cover a vertical and horizontal pull before repeating eith
     .filter(exercise => exercise.muscle === "back")
     .map(exercise => exercise.pullPattern);
   assert.deepEqual(new Set(patterns), new Set(["horizontal", "vertical"]));
+});
+test("Pec Dec is paired with a chest press before another chest isolation", () => {
+  const routine = generateRoutine({ ...demoProfile, days: 2, priority: "balanced" }, emptyPreferences);
+  const chest = routine.flatMap(day => day.exercises)
+    .map(entry => getExercise(entry.exerciseId, emptyPreferences))
+    .filter(exercise => exercise.muscle === "chest");
+  assert.ok(chest.some(exercise => ["chest-cable", "pec-deck", "standing-cable-pec-dec"].includes(exercise.id)));
+  assert.ok(chest.some(exercise => exercise.type === "compound"));
+
+  const cableOnly = generateRoutine({ ...demoProfile, days: 2, priority: "balanced" }, {
+    ...emptyPreferences,
+    equipment: ["cable"],
+  }, { chest: 4, back: 0, shoulders: 0, biceps: 0, triceps: 0, glutes: 0, quads: 0, hamstrings: 0, calves: 0, abs: 0 });
+  assert.equal(cableOnly.flatMap(day => day.exercises).filter(entry => entry.exerciseId === "chest-cable").length, 1);
 });
 test("full-body sessions cap fatigue, avoid calves and abs, and alternate muscles", () => {
   for (const days of [1, 2, 3]) {

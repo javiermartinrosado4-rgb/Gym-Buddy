@@ -298,6 +298,18 @@ export function generateRoutine(
     const sameMuscle = day.exercises
       .map(entry => getExercise(entry.exerciseId, prefs))
       .filter(item => item.muscle === exercise.muscle);
+    if (exercise.muscle === "chest") {
+      const chestExercises = days
+        .flatMap(candidateDay => candidateDay.exercises)
+        .map(entry => getExercise(entry.exerciseId, prefs))
+        .filter(item => item.muscle === "chest");
+      const hasPecDec = chestExercises.some(isPecDec);
+      const hasChestPress = chestExercises.some(isChestPress);
+      // Pec Dec is a useful complement, not the only chest pattern in an
+      // automatic plan. The next chest slot must be a press (machine, free
+      // weight or Smith) before another isolation is considered.
+      if (hasPecDec && !hasChestPress) return isChestPress(exercise);
+    }
     if (exercise.muscle === "quads") {
       // A second quad slot is always the extension. A third is the press;
       // beyond that the automatic generator spreads work to another day.
@@ -339,10 +351,10 @@ export function generateRoutine(
       const pulldowns = options.filter(exercise =>
         exercise.id === "wide-pulldown" || exercise.id === "neutral-pulldown",
       );
+      // Once a primary pulldown is already in the plan, give the other grip
+      // precedence before a lower-volume vertical accessory such as pullover.
       const shouldDiversifyPulldowns = pulldowns.length === 2 &&
-        !options.some(exercise =>
-          exercise.priority < Math.min(...pulldowns.map(item => item.priority)),
-        );
+        ((wideUsed > 0 && neutralUsed === 0) || (neutralUsed > 0 && wideUsed === 0));
       const pulldownVariety = (exercise: Exercise) =>
         (wideUsed > 0 && neutralUsed === 0 && exercise.id === "neutral-pulldown") ||
         (neutralUsed > 0 && wideUsed === 0 && exercise.id === "wide-pulldown")
