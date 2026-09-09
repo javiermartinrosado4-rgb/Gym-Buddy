@@ -4,6 +4,9 @@ Estado: implementación y pruebas locales. Hosting, DNS, certificado público y
 repositorio externo de copias pendientes de acceso del titular. No hay URL de
 producción confirmada. Un Compose escrito no acredita un servicio desplegado.
 
+Para la separación entre `akhyles.com` en IONOS y `api.akhyles.com`, consultar
+[IONOS-Y-API-AKHYLES.md](IONOS-Y-API-AKHYLES.md).
+
 ## Arquitectura
 
 Una instancia Node 24 detrás de Caddy, SQLite/WAL y fotos en el volumen persistente

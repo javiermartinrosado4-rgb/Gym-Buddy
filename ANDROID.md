@@ -1,6 +1,6 @@
 # Akhyles para Android
 
-> Revisión actual: `versionCode` 2. La release conectada requiere URL pública HTTPS
+> Revisión actual: `versionCode` 3. La release conectada requiere URL pública HTTPS
 > comprobada y produce `akhyles-release.apk` / `.aab`. Sin hosting, usar
 > `-OfflinePreview`: produce `akhyles-offline-preview.apk` / `.aab`, sin Comunidad.
 > El script exige la firma existente; no crea otra si falta. Validación repetible:
