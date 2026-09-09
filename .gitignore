@@ -48,6 +48,21 @@ playwright-report/
 # Community server: accounts and uploaded photos
 server/data/
 .env
+.env.*
+**/.env
+**/.env.*
+!**/.env.*.example
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.apk
+*.aab
+*.apks
+*.backup
+signing.properties
+backups/
+server/backup-password.txt
 server/.env.production
 
 # Android build outputs and signing credentials

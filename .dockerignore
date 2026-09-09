@@ -12,3 +12,11 @@ test-results
 *.log
 .env
 server/.env.production
+**/.env*
+**/*.jks
+**/*.keystore
+**/signing.properties
+**/*.sqlite*
+**/*.db
+backups
+**/backup-password.txt

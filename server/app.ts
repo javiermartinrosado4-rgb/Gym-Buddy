@@ -2,6 +2,7 @@ import { createServer, IncomingMessage } from "node:http";
 import { DatabaseSync } from "node:sqlite";
 import { createHash, randomBytes, randomUUID, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
+import { isIP } from "node:net";
 import sharp from "sharp";
 import { googleVerifier } from "./google";
 import { validAvatar, validAvatarPhoto } from "../src/data/avatars";
@@ -32,11 +33,13 @@ async function body(req: IncomingMessage) {
   } catch { return fail(400, "No se han podido leer los datos."); }
 }
 
-export function createGymServer({ database = ":memory:", origins = ["http://localhost:8081", "http://127.0.0.1:8081"], authLimit = 20, googleClientId = process.env.GYM_GOOGLE_CLIENT_ID ?? "", verifyGoogle = googleVerifier(googleClientId) } = {}) {
+export function createGymServer({ database = ":memory:", origins = ["http://localhost:8081", "http://127.0.0.1:8081"], authLimit = 20, trustProxy = false, googleClientId = process.env.GYM_GOOGLE_CLIENT_ID ?? "", verifyGoogle = googleVerifier(googleClientId) } = {}) {
   const db = new DatabaseSync(database);
   db.exec(`
     PRAGMA journal_mode = WAL;
     PRAGMA foreign_keys = ON;
+    PRAGMA busy_timeout = 5000;
+    PRAGMA secure_delete = ON;
     CREATE TABLE IF NOT EXISTS google_identities (subject TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE);
     CREATE TABLE IF NOT EXISTS user_avatars (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, avatar TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, handle TEXT NOT NULL UNIQUE, name TEXT NOT NULL, bio TEXT NOT NULL DEFAULT '', level TEXT NOT NULL, salt TEXT NOT NULL, password TEXT NOT NULL);
@@ -57,6 +60,7 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
     const now = Date.now();
     for (const [id, value] of limits) if (value.until < now) limits.delete(id);
     const entry = limits.get(key) ?? { count: 0, until: now + 15 * 60_000 };
+    if (!limits.has(key) && limits.size >= 10000) fail(503, "Servidor ocupado. Vuelve a intentarlo.");
     if (++entry.count > limit) fail(429, "Demasiados intentos. Inténtalo dentro de 15 minutos.");
     limits.set(key, entry);
   }
@@ -95,6 +99,7 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
     return { token, user: publicProfile(user, user.id) };
   }
   const server = createServer(async (req, res) => {
+    const requestId = randomUUID();
     const json = (status: number, value: unknown) => {
       res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
       res.end(JSON.stringify(value));
@@ -102,7 +107,11 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Vary", "Origin");
+    res.setHeader("X-Request-Id", requestId);
     try {
+      // Only enable behind a private proxy which overwrites this header (Caddy).
+      const forwarded = req.headers["x-forwarded-for"];
+      const clientIp = trustProxy && typeof forwarded === "string" && isIP(forwarded.trim()) ? forwarded.trim() : req.socket.remoteAddress;
       const origin = req.headers.origin;
       if (origin && !origins.includes(origin)) fail(403, "Origen no permitido.");
       if (origin) res.setHeader("Access-Control-Allow-Origin", origin);
@@ -112,16 +121,17 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
       const url = new URL(req.url ?? "/", "http://localhost");
       const path = url.pathname;
       const method = req.method;
-      if (path === "/health" && method === "GET") { json(200, { service: "gym-buddy-community", ok: true }); return; }
+      if (path === "/health" && method === "GET") { db.prepare("SELECT 1").get(); json(200, { service: "gym-buddy-community", ok: true }); return; }
       if (path === "/auth/google/config" && method === "GET") {
-        rateLimit(`google-config:${req.socket.remoteAddress}`, authLimit);
+        rateLimit(`google-config:${clientIp}`, authLimit);
         for (const [key, expires] of nonces) if (expires < Date.now()) nonces.delete(key);
         const nonce = randomBytes(32).toString("hex");
+        if (nonces.size >= 10000) fail(503, "Servidor ocupado. Vuelve a intentarlo.");
         if (googleClientId) nonces.set(nonce, Date.now() + 5 * 60_000);
         json(200, { clientId: googleClientId, nonce: googleClientId ? nonce : "" }); return;
       }
       if (path === "/auth/google" && method === "POST") {
-        rateLimit(`auth:${req.socket.remoteAddress}`, authLimit);
+        rateLimit(`auth:${clientIp}`, authLimit);
         if (!googleClientId) fail(503, "El acceso con Google todavía no está configurado.");
         const data = await body(req);
         const credential = str(data.credential, 12000), nonce = str(data.nonce, 64);
@@ -153,7 +163,7 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
         res.end(post.photo); return;
       }
       if (["/auth/register", "/auth/login"].includes(path) && method === "POST") {
-        rateLimit(`auth:${req.socket.remoteAddress}`, authLimit);
+        rateLimit(`auth:${clientIp}`, authLimit);
         const data = await body(req);
         const handle = str(data.handle, 24).toLowerCase().replace(/^@/, "");
         if (!/^[a-z0-9_]{3,24}$/.test(handle)) fail(400, "El @ necesita entre 3 y 24 letras, números o guiones bajos.");
@@ -344,7 +354,9 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
       }
       fail(404, "Ruta no encontrada.");
     } catch (error) {
-      if (!res.headersSent) json(error instanceof ApiError ? error.status : 500, { error: error instanceof ApiError ? error.message : "No se ha podido completar la operación. Inténtalo de nuevo." });
+      if (!(error instanceof ApiError)) console.error(JSON.stringify({ event: "request_error", requestId }));
+      if (error instanceof ApiError && error.status === 429) res.setHeader("Retry-After", "900");
+      if (!res.headersSent) json(error instanceof ApiError ? error.status : 500, { requestId, error: error instanceof ApiError ? error.message : "No se ha podido completar la operación. Inténtalo de nuevo." });
       else res.end();
     }
   });

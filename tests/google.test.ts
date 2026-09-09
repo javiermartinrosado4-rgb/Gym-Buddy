@@ -2,8 +2,16 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { AddressInfo } from "node:net";
 import { createGymServer } from "../server/app";
-import { googleVerifier } from "../server/google";
+import { googleVerifier, validatedIdentity } from "../server/google";
 import sharp from "sharp";
+
+test("Google claims require the expected audience, issuer, expiry, verified email and nonce", () => {
+  const payload = { sub: "stable-sub", aud: "web-client", iss: "https://accounts.google.com", exp: Math.floor(Date.now() / 1000) + 300, iat: Math.floor(Date.now() / 1000), email_verified: true, nonce: "one-use", name: "Test" };
+  assert.equal(validatedIdentity(payload, "web-client", "one-use").sub, "stable-sub");
+  for (const changed of [{ aud: "attacker" }, { iss: "https://evil.invalid" }, { exp: 1 }, { email_verified: false }, { nonce: "different" }, { sub: "" }]) {
+    assert.throws(() => validatedIdentity({ ...payload, ...changed }, "web-client", "one-use"));
+  }
+});
 
 test("official Google verifier rejects a malformed identity token", async () => {
   await assert.rejects(googleVerifier("test-client")("forged-token", "nonce"));

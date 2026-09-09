@@ -1,12 +1,17 @@
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createGymServer } from "./app";
+import { serverConfig } from "./config";
 
-const database = resolve(process.env.GYM_DATABASE ?? "server/data/gym-buddy.sqlite");
+const config = serverConfig();
+const database = resolve(config.database);
 mkdirSync(dirname(database), { recursive: true });
-const server = createGymServer({ database, origins: process.env.GYM_ALLOWED_ORIGINS?.split(",").map(s => s.trim()) });
-const port = Number(process.env.GYM_API_PORT ?? 8082);
-server.listen(port, process.env.GYM_API_HOST ?? "127.0.0.1", () => {
-  console.log(`Gym Buddy Comunidad: puerto ${port}`);
+const server = createGymServer({ ...config, database });
+server.listen(config.port, config.host, () => {
+  console.log(JSON.stringify({ event: "listening", port: config.port }));
 });
-for (const signal of ["SIGINT", "SIGTERM"] as const) process.on(signal, () => server.close());
+server.on("error", () => { console.error(JSON.stringify({ event: "server_error" })); process.exitCode = 1; });
+for (const signal of ["SIGINT", "SIGTERM"] as const) process.once(signal, () => {
+  server.close();
+  setTimeout(() => { server.closeAllConnections(); }, 25_000).unref();
+});
