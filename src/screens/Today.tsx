@@ -150,14 +150,37 @@ export default function Today() {
               marginVertical: 6,
             }}
           />
-          {session.exercises.slice(0, 3).map((entry) => (
-            <Row key={entry.id}>
-              <Icon name="check" size={14} />
-              <Txt size={13} style={{ flex: 1 }}>
-                {displayName(entry.exerciseId, state.preferences)}
-              </Txt>
-            </Row>
-          ))}
+          <View testID="session-preview" style={{ gap: 8 }}>
+            <Txt weight="600" size={15}>Vista previa completa</Txt>
+            <Txt muted size={12}>Este es el orden de tu sesión antes de empezar.</Txt>
+            {session.exercises.map((entry, index) => (
+              <View
+                key={entry.id}
+                style={{
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                  borderWidth: 1,
+                  borderRadius: 12,
+                  padding: 12,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <Txt weight="600" size={13} style={{ color: colors.accent, width: 20 }}>
+                  {String(index + 1).padStart(2, "0")}
+                </Txt>
+                <View style={{ flex: 1 }}>
+                  <Txt weight="600" size={14}>
+                    {displayName(entry.exerciseId, state.preferences)}
+                  </Txt>
+                  <Txt muted size={12}>
+                    {entry.sets} series · {entry.range[0]}–{entry.range[1]} repeticiones
+                  </Txt>
+                </View>
+              </View>
+            ))}
+          </View>
           {(activeToday || !completed) && (
             <Button
               label={

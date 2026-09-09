@@ -345,6 +345,23 @@ test("lower-body sessions vary quad and hamstring movement patterns", () => {
     }
   }
 });
+test("a hamstring mesocycle may pair seated and lying curls for four direct sets", () => {
+  const onlyMachine = { ...emptyPreferences, equipment: ["machine" as const] };
+  const targets = {
+    chest: 0, back: 0, shoulders: 0, biceps: 0, triceps: 0,
+    glutes: 0, quads: 0, hamstrings: 4, calves: 0, abs: 0,
+  };
+  const normal = generateRoutine(
+    { ...demoProfile, days: 1, priority: "balanced" }, onlyMachine, targets,
+  )[0].exercises.map(entry => entry.exerciseId);
+  assert.ok(normal.filter(id => ["standing-curl", "seated-curl", "lying-curl"].includes(id)).length <= 1);
+
+  const mesocycle = generateRoutine(
+    { ...demoProfile, days: 1, priority: "hamstrings", mesocycle: true }, onlyMachine, targets,
+  )[0].exercises.map(entry => entry.exerciseId);
+  assert.ok(mesocycle.includes("seated-curl"));
+  assert.ok(mesocycle.includes("lying-curl"));
+});
 test("paired exercises follow the quad, Romanian and chest press sequence", () => {
   const withoutUpperOrGlutes = {
     chest: 0, back: 0, shoulders: 0, biceps: 0, triceps: 0,
@@ -408,6 +425,16 @@ test("four and five-day torso plans alternate arms unless they are the priority"
       day.exercises.some((p) => getExercise(p.exerciseId, emptyPreferences).muscle === priority),
     ));
   }
+});
+test("extra direct arm volume can use both torso sessions", () => {
+  const routine = generateRoutine(
+    { ...demoProfile, days: 4, priority: "balanced" },
+    emptyPreferences,
+    { biceps: 8 },
+  ).filter(day => day.name.startsWith("Torso"));
+  assert.ok(routine.every(day => day.exercises.some(entry =>
+    getExercise(entry.exerciseId, emptyPreferences).muscle === "biceps",
+  )));
 });
 test("catalog priority, unavailable exercises, equipment and seated curl", () => {
   assert.equal(getExercise("standing-curl", emptyPreferences).name, "Curl Isquios Tumbado");

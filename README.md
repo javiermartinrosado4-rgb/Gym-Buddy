@@ -21,9 +21,9 @@ La rutina y el historial se guardan en este navegador y dirección. Comunidad ti
 - Estimación de calorías según el peso corporal y los ejercicios realizados, visible al terminar y en el historial.
 - Tiers orientativos S/A/B por grupo muscular, basados en las prioridades existentes del catálogo; contenido definitivo pendiente de revisión.
 
-- Perfil editable: nombre, @ local, datos corporales, nivel, días, prioridad, glúteos, equipamiento y especialización avanzada.
+- Perfil editable: nombre, @ local, datos corporales, nivel, días, prioridad/mesociclo, glúteos, equipamiento y especialización avanzada.
 - Calendario semanal editable: se eligen los días concretos disponibles y cada sesión aparece asignada a uno. Hoy muestra la sesión exacta, descanso, sesión en curso o sesión terminada.
-- Descansos estimados de 4 minutos en ejercicios pesados y 3 minutos en los demás, con 30 segundos por serie efectiva. El generador usa hasta 2 ejercicios pesados por sesión en planes de 4–5 días; el usuario puede añadir más. Bíceps se concentra en Torso A y tríceps en Torso B salvo que sean prioridad.
+- Descansos estimados de 4 minutos en ejercicios pesados y 3 minutos en los demás, con 30 segundos por serie efectiva. El generador usa hasta 2 ejercicios pesados por sesión en planes de 4–5 días; el usuario puede añadir más. Por defecto, bíceps se concentra en Torso A y tríceps en Torso B; si el usuario aumenta sus series directas, pueden repartirse entre ambos torsos.
 - Volumen semanal visible por grupo muscular: 4 series en grupos definidos como pequeños en los requisitos, 6/8 en grandes, y 16 en la especialización avanzada seleccionada.
 - Orden editable, alternancia de músculos y distribución de remos/jalones; duración realista estimada sin garantizar menos de 60 minutos.
 - Ejercicios sustituibles y personalizados, cargas, repeticiones, series e incrementos disponibles configurables.
@@ -31,7 +31,7 @@ La rutina y el historial se guardan en este navegador y dirección. Comunidad ti
 - Progresión automática para la siguiente sesión cuando todas las series alcanzan el máximo con la misma carga. Incremento disponible más cercano al 4 % dentro del 3–5 %. El ejemplo de 35 kg prepara 36,25 kg. Si el material no permite ese rango, se mantiene el peso y se explica. El peso se puede editar directamente dentro de cada serie.
 - Gráficas de líneas con peso corporal siempre visible y ejercicios activables por grupo muscular. Se pueden superponer varios ejercicios, elegir 28/90 días o todo el historial y consultar fechas, cargas y repeticiones. Registro directo del peso corporal desde Progreso.
 - Calendario de rutina en vista semanal o mensual, con navegación por meses. Permite corregir pesos y repeticiones de sesiones registradas y reservar pesos específicos para una fecha futura sin cambiar el plan semanal.
-- Al especializar un músculo, el volumen objetivo se ajusta automáticamente a los días disponibles: desde cuatro días se aproxima a 16 series en nivel intermedio o avanzado.
+- Al elegir un músculo prioritario se inicia su mesociclo de especialización; el volumen objetivo se ajusta automáticamente a los días disponibles y desde cuatro días se aproxima a 16 series en nivel intermedio o avanzado.
 - Comparación del ritmo de progreso con otros participantes del mismo nivel: en la media, más rápido o más lento. Usa ejercicios homologados comunes, al menos 7 días de registros dentro de los últimos 28 días y un mínimo de 5 personas comparables. Sin datos suficientes se indica explícitamente. El nivel se guarda al iniciar las sesiones nuevas.
 - Tras completar la sesión, Hoy muestra estadísticas del entrenamiento y acumuladas, además de una tendencia frente a la sesión anterior equivalente.
 - Cuando el rendimiento baja, Hoy muestra consejos concretos: dormir 8 horas con horarios constantes, 1,8 g de proteína por kilo de peso corporal al día, energía e hidratación suficientes. El día de descanso también recuerda el objetivo de sueño.

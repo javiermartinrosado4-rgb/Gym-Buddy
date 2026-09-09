@@ -1,6 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import { demoProfile, emptyPreferences } from "../../src/data/options";
-import { generateRoutine } from "../../src/logic/routine";
+import { displayName, generateRoutine } from "../../src/logic/routine";
 import { AppState, Weekday, Workout } from "../../src/types";
 const seed = (): AppState => ({ version: 1, profile: demoProfile, preferences: emptyPreferences, completed: true, onboardingStep: 0, theme: "system", programRevision: 2, routine: generateRoutine(demoProfile, emptyPreferences), history: [] });
 async function load(page: Page, state: AppState) {
@@ -10,6 +10,15 @@ async function load(page: Page, state: AppState) {
   await page.evaluate(s => localStorage.setItem("gym60:state:v1", JSON.stringify(s)), state);
   await page.goto("/today");
 }
+test("Today previews every planned exercise before training starts", async ({ page }) => {
+  const state = seed();
+  await load(page, state);
+  const preview = page.getByTestId("session-preview");
+  await expect(preview.getByText("Vista previa completa", { exact: true })).toBeVisible();
+  for (const entry of state.routine[0].exercises)
+    await expect(preview.getByText(displayName(entry.exerciseId, state.preferences), { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Iniciar entrenamiento", exact: true })).toBeVisible();
+});
 test("reorder, profile edits during a workout, community and local logout survive reload", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));

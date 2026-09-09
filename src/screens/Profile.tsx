@@ -53,7 +53,7 @@ export default function Profile() {
     update((s) => ({
       ...s,
       profile,
-      programRevision: planChanged ? 3 : s.programRevision,
+      programRevision: planChanged ? 4 : s.programRevision,
       preferences: prefs,
       bodyWeights: number(s.profile.weight) === number(profile.weight) && s.bodyWeights?.length
         ? s.bodyWeights : [...(s.bodyWeights ?? []), { date: new Date().toISOString(), weight: number(profile.weight) }],
@@ -91,7 +91,9 @@ export default function Profile() {
             <Txt>
               {state.routine.length}
               {messages.Profile.dias}
-              {muscleName(state.profile.priority)}
+              {state.profile.priority === "balanced"
+                ? muscleName(state.profile.priority)
+                : `Mesociclo: ${muscleName(state.profile.priority)}`}
             </Txt>
             <Txt size={13} muted>
               Disponibilidad: {availableWeekdays(state.profile).map(weekdayName).join(", ")}

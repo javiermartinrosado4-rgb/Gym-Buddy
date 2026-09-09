@@ -161,6 +161,10 @@ const isPecDec = (exercise: Exercise) =>
   ["chest-cable", "pec-deck", "standing-cable-pec-dec"].includes(exercise.id);
 
 export const glutesEnabled = (p: Profile) => p.includeGlutes ?? (p.sex === "female" || p.priority === "glutes");
+// Choosing a muscle to specialize starts its mesocycle. `mesocycle` remains
+// persisted for older profiles, while priority is the source of truth for the
+// generator so existing routines behave consistently after an update.
+export const hasMesocycle = (p: Profile) => p.priority !== "balanced";
 export const specializationTarget = (p: Profile) => {
   if (p.priority === "balanced") return 0;
   const days = Math.min(APP.maxDays, Math.max(1, p.days));
@@ -243,6 +247,7 @@ export function generateRoutine(
 ): Day[] {
   const count = Math.min(APP.maxDays, Math.max(1, profile.days));
   const targets = weeklyTargets(profile, overrides);
+  const baseTargets = weeklyTargets(profile);
   // Keep the familiar day names/split. Automatic prescriptions always start
   // at the app's conservative two effective sets per exercise.
   const names = [
@@ -260,9 +265,15 @@ export function generateRoutine(
     // without being central to its main multi-joint work. They belong on lower
     // split days instead; users can still add them manually whenever desired.
     if (isFullBodyDay(day) && (muscle === "calves" || muscle === "abs")) return false;
-    const isSpecialization = profile.priority !== "balanced" && profile.priority === muscle;
+    const isSpecialization = hasMesocycle(profile) && profile.priority === muscle;
     if (isSpecialization) return true;
-    if (count > 3 && (muscle === "biceps" || muscle === "triceps") && profile.priority !== muscle) {
+    // Alternating arms keeps a standard torso split concise. It is a default,
+    // not a restriction: a user who asks for more direct arm volume can use
+    // both torso sessions to accommodate those extra series.
+    const requestedExtraArmVolume = (muscle === "biceps" || muscle === "triceps") &&
+      targets[muscle] > baseTargets[muscle];
+    if (count > 3 && (muscle === "biceps" || muscle === "triceps") &&
+      profile.priority !== muscle && !requestedExtraArmVolume) {
       const torsoIndex = torsoDays.findIndex((torso) => torso.id === day.id);
       return muscle === "biceps" ? torsoIndex === 0 : torsoIndex === 1;
     }
@@ -291,9 +302,12 @@ export function generateRoutine(
     if (overlappingQuadPatterns.has(exercise.id))
       return ![...overlappingQuadPatterns].some(id => id !== exercise.id && exerciseUses(id) > 0);
     const family = lowerMovementFamily(exercise);
-    // Never put two curl machines for the hamstrings in one session. A hinge
-    // (RDL) remains a valid complementary movement when the target needs it.
-    if (family && day.exercises.some(p => lowerMovementFamily(getExercise(p.exerciseId, prefs)) === family))
+    const isHamstringMesocycle = hasMesocycle(profile) && profile.priority === "hamstrings";
+    // In a normal plan, one curl machine per session avoids redundant knee
+    // flexion. During a hamstring mesocycle, seated and lying curls may share
+    // a session when the extra volume calls for four direct curl sets.
+    if (family && day.exercises.some(p => lowerMovementFamily(getExercise(p.exerciseId, prefs)) === family) &&
+      !(isHamstringMesocycle && family === "hamstring-curl"))
       return false;
     const sameMuscle = day.exercises
       .map(entry => getExercise(entry.exerciseId, prefs))
@@ -385,6 +399,18 @@ export function generateRoutine(
       options = options.sort((a, b) => Number(b.type === "isolation") - Number(a.type === "isolation"));
     if (muscle === "hamstrings" && (used[muscle] ?? 0) % 2 === 1) {
       options = options.sort((a, b) => Number(b.id === "seated-curl") - Number(a.id === "seated-curl"));
+    }
+    if (muscle === "hamstrings" && hasMesocycle(profile) && profile.priority === "hamstrings") {
+      const sessionCurls = day.exercises
+        .map(entry => getExercise(entry.exerciseId, prefs).id)
+        .filter(id => ["standing-curl", "seated-curl", "lying-curl"].includes(id));
+      // Favor the seated/lying pairing for the optional second curl slot. It
+      // provides the requested four curl sets without selecting a duplicate.
+      const companion = sessionCurls.includes("seated-curl") ? "lying-curl"
+        : sessionCurls.includes("lying-curl") ? "seated-curl"
+          : undefined;
+      if (companion)
+        options = options.sort((a, b) => Number(b.id === companion) - Number(a.id === companion));
     }
     if (muscle === "quads") {
       // The pendulum hack is the preferred Jaca pattern whenever the user

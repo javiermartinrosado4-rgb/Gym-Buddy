@@ -10,9 +10,9 @@ export const messages = {
     hazleEspacioATuRutina: "Hazle espacio a tu rutina",
     cuantosDiasPuedesEntrenarNormalmenteCadaSemana:
       "¿Cuántos días puedes entrenar normalmente cada semana?",
-    unPocoMasDeAtencion: "Especializa un músculo",
+    unPocoMasDeAtencion: "Elige tu mesociclo",
     daremosUnProtagonismoModeradoAEsteMusculo:
-      "El volumen se adapta automáticamente a tus días disponibles. Desde 4 días se orienta hacia 16 series en nivel intermedio o avanzado.",
+      "Al elegir un músculo, inicias su mesociclo de especialización. El volumen se adapta a tus días disponibles y desde 4 días se orienta hacia 16 series en nivel intermedio o avanzado.",
     atras: "Atrás",
     tuPlan: "TU PLAN · ",
     de4: " DE 4",
@@ -50,7 +50,7 @@ export const messages = {
       "Al guardar se regenerará la distribución de ejercicios. Conservaremos tu historial, cargas confirmadas, nombres, rangos y ejercicios personalizados.",
     nivel: "Nivel",
     disponibilidad: "Disponibilidad",
-    musculoPrioritario: "Músculo prioritario",
+    musculoPrioritario: "Mesociclo / músculo prioritario",
     equipamientoDeTuGimnasio: "Equipamiento de tu gimnasio",
     ejerciciosQueHasDescartado: "Ejercicios que has descartado",
     revisaLosCamposIndicadosEnElPerfil:
@@ -93,6 +93,7 @@ export const messages = {
     cm: " cm · ",
     kg: " kg",
     prioridad: "Prioridad: ",
+    mesociclo: "Mesociclo: ",
     diasDisponiblesProgramados5: " días disponibles → programados 5.",
     distribucionSemanal: "Distribución semanal",
     hagamosSitioATuPrimerEjercicio: "Hagamos sitio a tu primer ejercicio",

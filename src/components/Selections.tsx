@@ -103,10 +103,10 @@ export function PrioritySelect({
           description={
             m.id === "balanced"
               ? messages.Selections.sinPrioridadConcreta
-              : "La especialización aumenta las series según tus días disponibles; desde 4 días se acerca a 16 series en nivel intermedio o avanzado."
+              : "Este músculo será tu mesociclo de especialización: aumenta sus series según tus días disponibles; desde 4 días se acerca a 16 series en nivel intermedio o avanzado."
           }
           selected={profile.priority === m.id}
-          onPress={() => change({ priority: m.id })}
+          onPress={() => change({ priority: m.id, mesocycle: m.id !== "balanced" })}
         />
       ))}
     </View>
