@@ -1,5 +1,6 @@
 import { messages } from "../content/es";
 import { View } from "react-native";
+import { APP } from "../config";
 import { defaultTrainingDays, levels, muscles, weekdays } from "../data/options";
 import { Profile, Weekday } from "../types";
 import { Button, Choice, Notice, Txt } from "./ui";
@@ -77,7 +78,9 @@ export function DaysSelect({
         })}
       </View>
       <Txt size={12} muted>
-        Seleccionados {(profile.trainingDays ?? defaultTrainingDays(profile.days)).length} de {profile.days}. Gym Buddy repartirá hasta 5 sesiones entre estos días.
+        {profile.days <= APP.maxDays
+          ? `Seleccionados ${(profile.trainingDays ?? defaultTrainingDays(profile.days)).length} de ${profile.days} días.`
+          : `Seleccionados ${(profile.trainingDays ?? defaultTrainingDays(profile.days)).length} días disponibles; se programarán ${APP.maxDays} sesiones.`}
       </Txt>
       {profile.days > 5 && (
         <Notice>

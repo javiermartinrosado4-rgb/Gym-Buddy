@@ -53,7 +53,7 @@ export default function Profile() {
     update((s) => ({
       ...s,
       profile,
-      programRevision: planChanged ? 4 : s.programRevision,
+      programRevision: planChanged ? 5 : s.programRevision,
       preferences: prefs,
       bodyWeights: number(s.profile.weight) === number(profile.weight) && s.bodyWeights?.length
         ? s.bodyWeights : [...(s.bodyWeights ?? []), { date: new Date().toISOString(), weight: number(profile.weight) }],

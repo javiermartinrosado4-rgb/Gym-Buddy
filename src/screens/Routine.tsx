@@ -171,9 +171,9 @@ export function RoutineOverview() {
         {messages.Routine.distribucionSemanal}
       </Txt>
       <Notice>Los abdominales se colocan preferentemente en los días de pierna. Entrenarlos los fortalece; para que se marquen, lo principal es reducir el porcentaje graso mediante la dieta. Su efecto visual directo es menor.</Notice>
-      {state.programRevision !== 4 && <Card>
+      {state.programRevision !== 5 && <Card>
         <Txt>Tu rutina guardada pertenece a la versión anterior. Puedes aplicar los nuevos volúmenes y límites conservando el historial y las cargas; se regenerará el orden y las series del plan.</Txt>
-        <Button label="Actualizar rutina a nuevas reglas" onPress={() => update(s => ({ ...s, programRevision: 4, routine: generateRoutine(s.profile, s.preferences, s.volumeTargets) }))} />
+        <Button label="Actualizar rutina a nuevas reglas" onPress={() => update(s => ({ ...s, programRevision: 5, routine: generateRoutine(s.profile, s.preferences, s.volumeTargets) }))} />
       </Card>}
       {state.routine.map((d, i) => (
         <Choice

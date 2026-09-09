@@ -289,6 +289,20 @@ test("full-body sessions cap fatigue, avoid calves and abs, and alternate muscle
     }
   }
 });
+test("two-day full body limits each muscle to two weekly heavy sets and separates RDL from Jaca", () => {
+  const routine = generateRoutine({ ...demoProfile, days: 2, priority: "balanced" }, emptyPreferences);
+  for (const muscle of muscles.filter(item => item.id !== "balanced").map(item => item.id)) {
+    const heavy = routine.flatMap(day => day.exercises)
+      .map(entry => getExercise(entry.exerciseId, emptyPreferences))
+      .filter(exercise => exercise.muscle === muscle && exercise.type === "compound");
+    assert.ok(heavy.length <= 1, `${muscle} has more than two weekly heavy sets`);
+  }
+  for (const day of routine) {
+    const ids = day.exercises.map(entry => entry.exerciseId);
+    assert.ok(!(ids.includes("hack") && ids.some(id => id.startsWith("rdl-"))));
+    assert.ok(!(ids.includes("pendulum") && ids.some(id => id.startsWith("rdl-"))));
+  }
+});
 test("abdominal work is assigned to leg days when the split has them", () => {
   const routine = generateRoutine({ ...demoProfile, days: 4, priority: "balanced" }, emptyPreferences);
   const daysWithAbs = routine.filter(day => day.exercises.some(entry =>
@@ -319,6 +333,23 @@ test("advanced profiles prefer the pendulum hack over Jaca", () => {
   assert.ok(!advanced.includes("hack"));
   assert.ok(intermediate.includes("hack"));
   assert.ok(!intermediate.includes("pendulum"));
+});
+test("quad work uses Prensa before a second squat pattern, with a narrow advanced fallback", () => {
+  const normal = generateRoutine(
+    { ...demoProfile, days: 4, level: "advanced", priority: "balanced" },
+    emptyPreferences,
+    { chest: 0, back: 0, shoulders: 0, biceps: 0, triceps: 0, glutes: 0, quads: 16, hamstrings: 0, calves: 0, abs: 0 },
+  ).flatMap(day => day.exercises).map(entry => entry.exerciseId);
+  assert.ok(normal.includes("leg-press"));
+  assert.equal(normal.filter(id => id === "hack" || id === "pendulum").length, 1);
+
+  const noPress = { ...emptyPreferences, equipment: ["machine" as const], unavailable: ["leg-press"] };
+  const fallback = generateRoutine(
+    { ...demoProfile, days: 4, level: "advanced", priority: "balanced" },
+    noPress,
+    { chest: 0, back: 0, shoulders: 0, biceps: 0, triceps: 0, glutes: 0, quads: 16, hamstrings: 0, calves: 0, abs: 0 },
+  ).flatMap(day => day.exercises).map(entry => entry.exerciseId);
+  assert.ok(fallback.includes("hack") && fallback.includes("pendulum"));
 });
 test("lower-body sessions vary quad and hamstring movement patterns", () => {
   for (const days of [1, 2, 3, 4, 5]) {
@@ -370,7 +401,9 @@ test("paired exercises follow the quad, Romanian and chest press sequence", () =
   const quads = generateRoutine({ ...demoProfile, days: 1, level: "advanced" }, emptyPreferences, {
     ...withoutUpperOrGlutes, quads: 6, hamstrings: 0,
   })[0].exercises.map(entry => entry.exerciseId);
-  assert.deepEqual(quads, ["pendulum", "leg-extension", "leg-press"]);
+  // A one-day plan is full body, so it keeps the weekly heavy quad work to
+  // the pendular pattern plus its lighter extension rather than adding Prensa.
+  assert.deepEqual(quads, ["pendulum", "leg-extension"]);
 
   const hamstrings = generateRoutine({ ...demoProfile, days: 1, level: "advanced" }, {
     ...emptyPreferences, equipment: ["machine", "free"],
@@ -435,6 +468,16 @@ test("extra direct arm volume can use both torso sessions", () => {
   assert.ok(routine.every(day => day.exercises.some(entry =>
     getExercise(entry.exerciseId, emptyPreferences).muscle === "biceps",
   )));
+});
+test("two direct arm exercises pair biceps with triceps and advanced arms prioritize cable", () => {
+  const arms = generateRoutine(
+    { ...demoProfile, days: 1, priority: "balanced" },
+    emptyPreferences,
+    { chest: 0, back: 0, shoulders: 0, biceps: 4, triceps: 4, glutes: 0, quads: 0, hamstrings: 0, calves: 0, abs: 0 },
+  )[0].exercises.map(entry => getExercise(entry.exerciseId, emptyPreferences).muscle);
+  assert.deepEqual(arms, ["biceps", "triceps", "biceps", "triceps"]);
+  for (const muscle of ["shoulders", "triceps"] as const)
+    assert.equal(candidates(muscle, { ...demoProfile, level: "advanced" }, emptyPreferences)[0].variant, "cable");
 });
 test("catalog priority, unavailable exercises, equipment and seated curl", () => {
   assert.equal(getExercise("standing-curl", emptyPreferences).name, "Curl Isquios Tumbado");
@@ -533,9 +576,9 @@ test("duration uses thirty-second sets and four or three minutes between sets", 
   const isolation = prescribe(getExercise("pec-deck", emptyPreferences), emptyPreferences);
   assert.equal(restSeconds(getExercise(heavy.exerciseId, emptyPreferences)), 240);
   assert.equal(restSeconds(getExercise(isolation.exerciseId, emptyPreferences)), 180);
-  assert.equal(duration({ id: "heavy", name: "Pesado", exercises: [{ ...heavy, sets: 2 }] }, emptyPreferences), 36);
-  assert.equal(duration({ id: "isolation", name: "Aislamiento", exercises: [{ ...isolation, sets: 2 }] }, emptyPreferences), 36);
-  assert.equal(duration({ id: "mixed", name: "Mixto", exercises: [{ ...heavy, sets: 2 }, { ...isolation, sets: 2 }] }, emptyPreferences), 36);
+  assert.equal(duration({ id: "heavy", name: "Pesado", exercises: [{ ...heavy, sets: 2 }] }, emptyPreferences), 45);
+  assert.equal(duration({ id: "isolation", name: "Aislamiento", exercises: [{ ...isolation, sets: 2 }] }, emptyPreferences), 45);
+  assert.equal(duration({ id: "mixed", name: "Mixto", exercises: [{ ...heavy, sets: 2 }, { ...isolation, sets: 2 }] }, emptyPreferences), 45);
 });
 test("double progression: all effective sets, configurable range, 5% and 3%", () => {
   assert.equal(

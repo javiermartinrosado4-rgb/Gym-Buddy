@@ -43,10 +43,13 @@ export function candidates(
     )
     .sort(
       (a, b) =>
-        a.priority - b.priority ||
-        (profile.level === "advanced"
+        // Advanced lifters normally get the more stable cable choices first
+        // for shoulders and triceps, while still retaining free-weight options
+        // for variety and substitutions.
+        (profile.level === "advanced" && (muscle === "shoulders" || muscle === "triceps")
           ? Number(b.variant === "cable") - Number(a.variant === "cable")
           : 0) ||
+        a.priority - b.priority ||
         (compound
           ? Number(b.type === "compound") - Number(a.type === "compound")
           : 0) ||
@@ -124,7 +127,7 @@ export function duration(day: Day, prefs: Preferences): number {
   );
   // This is guidance, not a countdown. Short plans still reserve time for
   // preparation, transitions and a calm pace between exercises.
-  return Math.max(36, calculated);
+  return Math.max(45, calculated);
 }
 export function fitDay(day: Day, prefs: Preferences, preserveId?: string, level: Level = "intermediate"): Day {
   // Exercise limits guide automatic generation only. A user editing a plan can
@@ -153,6 +156,8 @@ export const lowerMovementFamily = (exercise: Exercise) => {
 const isQuadExtension = (exercise: Exercise) => exercise.id === "leg-extension";
 const isRomanianDeadlift = (exercise: Exercise) =>
   ["rdl-bar", "rdl-dumbbell", "rdl-smith", "rdl-machine"].includes(exercise.id);
+const isQuadSquatMachine = (exercise: Exercise) =>
+  exercise.id === "hack" || exercise.id === "pendulum";
 const isHamstringMachineCurl = (exercise: Exercise) =>
   ["standing-curl", "seated-curl", "lying-curl"].includes(exercise.id);
 const isChestPress = (exercise: Exercise) =>
@@ -297,10 +302,19 @@ export function generateRoutine(
     // supported row. It only enters a back specialization after frequency two.
     if (exercise.id === "gironda-row")
       return profile.priority === "back" && exerciseUses("supported-row") >= 2;
-    // Jaca and hack squat pendular are near-identical patterns. Auto-generated
-    // plans choose one so progression can be tracked instead of duplicating it.
-    if (overlappingQuadPatterns.has(exercise.id))
-      return ![...overlappingQuadPatterns].some(id => id !== exercise.id && exerciseUses(id) > 0);
+    // Do not repeat Jaca in an automatic week. Prensa is the normal second
+    // heavy quad pattern. An advanced athlete can only receive Jaca plus
+    // pendular when the volume need is high and Prensa is unavailable.
+    if (overlappingQuadPatterns.has(exercise.id)) {
+      if (exerciseUses(exercise.id) > 0) return false;
+      const otherSquatPatternUsed = [...overlappingQuadPatterns]
+        .some(id => id !== exercise.id && exerciseUses(id) > 0);
+      const legPressAvailable = candidates("quads", profile, prefs, true)
+        .some(candidate => candidate.id === "leg-press");
+      if (otherSquatPatternUsed &&
+        !(profile.level === "advanced" && targets.quads >= 12 && !legPressAvailable))
+        return false;
+    }
     const family = lowerMovementFamily(exercise);
     const isHamstringMesocycle = hasMesocycle(profile) && profile.priority === "hamstrings";
     // In a normal plan, one curl machine per session avoids redundant knee
@@ -312,6 +326,33 @@ export function generateRoutine(
     const sameMuscle = day.exercises
       .map(entry => getExercise(entry.exerciseId, prefs))
       .filter(item => item.muscle === exercise.muscle);
+    const directArms = day.exercises
+      .map(entry => getExercise(entry.exerciseId, prefs))
+      .filter(item => item.muscle === "biceps" || item.muscle === "triceps");
+    if ((exercise.muscle === "biceps" || exercise.muscle === "triceps") && directArms.length) {
+      const opposite = exercise.muscle === "biceps" ? "triceps" : "biceps";
+      // When two direct arm movements fit in the same session, pair biceps
+      // with triceps before repeating the same elbow action. A requested zero
+      // target remains respected rather than injecting unwanted arm volume.
+      if (directArms.some(item => item.muscle === exercise.muscle) &&
+        !directArms.some(item => item.muscle === opposite) &&
+        currentVolume(opposite) < targets[opposite]) return false;
+    }
+    if (isFullBodyDay(day) && isHeavyExercise(exercise)) {
+      const heavyFullBodyEntries = days
+        .filter(isFullBodyDay)
+        .flatMap(fullBodyDay => fullBodyDay.exercises)
+        .map(entry => getExercise(entry.exerciseId, prefs))
+        .filter(item => item.muscle === exercise.muscle && isHeavyExercise(item));
+      // Two-day full body keeps direct heavy work to two weekly sets per
+      // muscle. A three-day specialization may add one more heavy exercise.
+      const heavyLimit = count === 3 && hasMesocycle(profile) && profile.priority === exercise.muscle ? 2 : 1;
+      if (heavyFullBodyEntries.length >= heavyLimit) return false;
+    }
+    if (count <= 2 && isFullBodyDay(day) &&
+      ((isRomanianDeadlift(exercise) && day.exercises.some(entry => isQuadSquatMachine(getExercise(entry.exerciseId, prefs)))) ||
+        (isQuadSquatMachine(exercise) && day.exercises.some(entry => isRomanianDeadlift(getExercise(entry.exerciseId, prefs))))))
+      return false;
     if (exercise.muscle === "chest") {
       const chestExercises = days
         .flatMap(candidateDay => candidateDay.exercises)
