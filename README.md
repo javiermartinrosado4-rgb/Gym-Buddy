@@ -2,6 +2,8 @@
 
 Android: consulta [ANDROID.md](ANDROID.md) para generar la APK instalable, conservar la firma y configurar Comunidad.
 
+Antes de publicar: [materiales de Google Play](docs/GOOGLE-PLAY.md), [borrador de privacidad](docs/PRIVACIDAD.md) y [despliegue de Comunidad](docs/DESPLIEGUE-COMUNIDAD.md).
+
 Aplicación local de gimnasio en español, construida con React Native, Expo SDK 57, Expo Router y TypeScript.
 
 ## Abrir

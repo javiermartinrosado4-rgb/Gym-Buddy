@@ -13,6 +13,7 @@ interface CommunityContext {
   authenticate: (register: boolean, data: unknown) => Promise<void>;
   authenticateGoogle: (credential: string, nonce: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   refresh: () => Promise<void>;
   request: <T>(path: string, method?: string, data?: unknown) => Promise<T>;
 }
@@ -62,6 +63,12 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.removeItem(tokenKey);
     setToken(null); setUser(null); setError("");
   }, [token]);
+  const deleteAccount = useCallback(async () => {
+    if (!token) return;
+    await communityRequest("/me", token, "DELETE");
+    await AsyncStorage.removeItem(tokenKey);
+    setToken(null); setUser(null); setError("");
+  }, [token]);
   useEffect(() => {
     if (state.signedOut && token) {
       void communityRequest("/auth/logout", token, "POST").catch(() => undefined);
@@ -74,7 +81,7 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     if (!token || !user?.progressPublic) return;
     void communityRequest("/progress/me", token, "PUT", exportProgress({ history })).catch(() => undefined);
   }, [history, token, user?.progressPublic]);
-  return <Context.Provider value={{ token, user, ready, error, request, refresh, logout,
+  return <Context.Provider value={{ token, user, ready, error, request, refresh, logout, deleteAccount,
     authenticateGoogle: async (credential, nonce) => {
       const result = await communityRequest<{ token: string; user: CommunityUser }>("/auth/google", undefined, "POST", { credential, nonce, level: state.profile.level });
       await AsyncStorage.setItem(tokenKey, result.token);

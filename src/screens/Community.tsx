@@ -19,7 +19,7 @@ export default function Community() {
 
 function CommunityScreen() {
   const { state } = useStore();
-  const { user, token, ready, error: connectionError, authenticate, logout, request, refresh } = useCommunity();
+  const { user, token, ready, error: connectionError, authenticate, logout, deleteAccount, request, refresh } = useCommunity();
   const { colors } = useTheme();
   const [register, setRegister] = useState(false);
   const [handle, setHandle] = useState(state.profile.handle ?? "");
@@ -44,6 +44,7 @@ function CommunityScreen() {
   const [composer, setComposer] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmAccountDeletion, setConfirmAccountDeletion] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [reason, setReason] = useState("");
   const [query, setQuery] = useState("");
@@ -228,6 +229,13 @@ function CommunityScreen() {
         {people?.length === 0 && <Txt muted>No hay perfiles con ese @.</Txt>}
       </Card>
       <Button label="Cerrar sesión de Comunidad" compact variant="ghost" disabled={busy} onPress={() => void run(logout)} />
+      <Button label="Eliminar cuenta de Comunidad" compact variant="ghost" disabled={busy} onPress={() => setConfirmAccountDeletion(true)} />
+      {confirmAccountDeletion && <Card>
+        <Txt weight="600">¿Eliminar tu cuenta de Comunidad?</Txt>
+        <Txt muted>Se borrarán tu perfil social, publicaciones, fotos, seguidores, reacciones, datos compartidos y sesión. Tu rutina e historial locales no se borran.</Txt>
+        <Button label="Eliminar mi cuenta definitivamente" disabled={busy} onPress={() => void run(async () => { await deleteAccount(); })} />
+        <Button label="Conservar mi cuenta" compact variant="ghost" disabled={busy} onPress={() => setConfirmAccountDeletion(false)} />
+      </Card>}
     </>}
     {!!error && <Notice error>{error}</Notice>}
     {!!message && <Notice>{message}</Notice>}

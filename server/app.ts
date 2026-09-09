@@ -192,6 +192,12 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
       if (path === "/auth/logout" && method === "POST") {
         db.prepare("DELETE FROM sessions WHERE token = ?").run(hash(token)); json(200, { ok: true }); return;
       }
+      if (path === "/me" && method === "DELETE") {
+        // Foreign keys cascade to sessions, posts/photos, follows, likes, reports,
+        // shared data, samples, avatars and Google identity links.
+        db.prepare("DELETE FROM users WHERE id = ?").run(user.id);
+        json(200, { ok: true }); return;
+      }
       if (path === "/me" && method === "GET") { json(200, publicProfile(user, user.id)); return; }
       if (path === "/me" && method === "PATCH") {
         const data = await body(req);

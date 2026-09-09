@@ -1,0 +1,14 @@
+.git
+.expo
+.claude
+android
+artifacts
+dist
+node_modules
+playwright-report
+referencias-visuales
+server/data
+test-results
+*.log
+.env
+server/.env.production

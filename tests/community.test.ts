@@ -100,6 +100,20 @@ test("two real accounts publish, follow, like, report and enforce ownership and 
   } finally { await f.close(); }
 });
 
+test("deleting a Community account removes its server data but not device data", async () => {
+  const f = await fixture();
+  try {
+    const member = await f.register("erase_me");
+    const image = await sharp({ create: { width: 20, height: 20, channels: 3, background: "#456351" } }).png().toBuffer();
+    const post = await f.call("/posts", "POST", { photo: `data:image/png;base64,${image.toString("base64")}`, caption: "Para borrar" }, member.token);
+    assert.equal(post.status, 201);
+    assert.equal((await f.call("/me", "DELETE", undefined, member.token)).status, 200);
+    assert.equal((await f.call("/me", "GET", undefined, member.token)).status, 401);
+    assert.equal((await f.call("/auth/login", "POST", { handle: "erase_me", password: "test-password-123" })).status, 401);
+    assert.equal((await fetch(`${f.url}/photos/${post.data.id}`)).status, 404);
+  } finally { await f.close(); }
+});
+
 test("server comparison uses distinct accounts and supports withdrawing records", async () => {
   const f = await fixture();
   try {
