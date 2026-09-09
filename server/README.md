@@ -7,11 +7,11 @@ migración desde el almacenamiento anterior; web mantiene almacenamiento local.
 Copias: `server/backup-worker.ts` y Restic con restauración ensayada localmente.
 Prueba reproducible con Restic en PATH: `node --import tsx scripts/test-backup-recovery.ts`.
 
-Backend de Gym Buddy con Node 24, SQLite y procesamiento de imágenes con sharp. Las cuentas y fotografías están en `server/data/gym-buddy.sqlite`; no se incluyen en Git. El historial de entrenamiento completo sigue siendo local a cada dispositivo.
+Backend de Akhyles con Node 24, SQLite y procesamiento de imágenes con sharp. Las cuentas y fotografías están en `server/data/gym-buddy.sqlite`; no se incluyen en Git. El historial de entrenamiento completo sigue siendo local a cada dispositivo.
 
 ## Probar en este equipo
 
-`Abrir Gym Buddy.cmd` inicia la app y el servidor de Comunidad. Si ya tienes Expo abierto, ejecuta `npm.cmd run server` en otra terminal desde la raíz del proyecto. API: `http://127.0.0.1:8082/health`. No se crean cuentas ni fotos de ejemplo en la base real.
+`Abrir Akhyles.cmd` inicia la app y el servidor de Comunidad. Si ya tienes Expo abierto, ejecuta `npm.cmd run server` en otra terminal desde la raíz del proyecto. API: `http://127.0.0.1:8082/health`. No se crean cuentas ni fotos de ejemplo en la base real.
 
 En Comunidad, crea una cuenta con @ y contraseña de al menos 10 caracteres. Puedes probar otra cuenta en otro navegador. El @ del perfil de entrenamiento es local; el @ de Comunidad es único entre las cuentas de ese servidor.
 

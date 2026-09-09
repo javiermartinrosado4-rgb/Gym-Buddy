@@ -72,9 +72,13 @@ test("third heavy exercise is editable and profile avatar persists without regen
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!));
   expect(saved.profile.avatar).toBe("wave");
   expect(saved.routine[0].exercises).toHaveLength(3);
-  await page.goto("/today");
+  await page.getByRole("button", { name: "Editar perfil y gimnasio", exact: true }).click();
   await page.getByRole("button", { name: "Tier Espalda", exact: true }).click();
   await expect(page.getByText("S · Prioridad alta", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Marcar favorito", exact: true }).first().click();
+  await page.getByRole("button", { name: "Guardar perfil", exact: true }).click();
+  await page.reload();
+  expect((await page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!).preferences.favorites)).length).toBe(1);
   await page.screenshot({ path: "test-results/tiers-updates.png" });
 });
 

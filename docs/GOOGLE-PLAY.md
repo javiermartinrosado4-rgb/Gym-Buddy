@@ -6,7 +6,7 @@ Estado: preparado para la ficha; **no enviado a Play Console**. Revisa los campo
 
 | Campo | Valor |
 | --- | --- |
-| Nombre | Gym Buddy |
+| Nombre | Akhyles |
 | Paquete | `com.javiermartinrosado.gymbuddy` |
 | Versión actual | 1.0.0 (`versionCode` 2); comprobar si Play exige uno superior |
 | Categoría propuesta | Salud y bienestar |
@@ -22,7 +22,7 @@ Estado: preparado para la ficha; **no enviado a Play Console**. Revisa los campo
 
 **Descripción completa:**
 
-> Gym Buddy te ayuda a organizar tus entrenamientos de fuerza y a convertir tus registros en una rutina que puedas seguir.
+> Akhyles te ayuda a organizar tus entrenamientos de fuerza y a convertir tus registros en una rutina que puedas seguir.
 >
 > • Crea una rutina adaptada a tus días, nivel, prioridad muscular y equipamiento.
 > • Registra peso y repeticiones serie a serie; prepara la siguiente carga cuando completas el rango objetivo.
@@ -32,7 +32,7 @@ Estado: preparado para la ficha; **no enviado a Play Console**. Revisa los campo
 >
 > Comunidad es opcional. Permite crear una cuenta, compartir publicaciones y conectar con otras personas cuando el servicio esté disponible. Tus entrenamientos y medidas se guardan localmente y no se sincronizan automáticamente por crear una cuenta.
 >
-> Gym Buddy no sustituye el consejo médico, nutricional ni de entrenamiento profesional. Ajusta el ejercicio a tus necesidades y consulta a un profesional ante dolor, lesión o dudas de salud.
+> Akhyles no sustituye el consejo médico, nutricional ni de entrenamiento profesional. Ajusta el ejercicio a tus necesidades y consulta a un profesional ante dolor, lesión o dudas de salud.
 
 ## Recursos gráficos
 
@@ -63,7 +63,7 @@ No hay publicidad, venta de datos, analítica de terceros, acceso a contactos, u
 
 ## Checklist de envío
 
-Abrir https://play.google.com/console > seleccionar/crear Gym Buddy > **Pruebas y
+Abrir https://play.google.com/console > seleccionar/crear Akhyles > **Pruebas y
 lanzamiento > Pruebas > Prueba interna > Crear versión**. Solo subir el AAB conectado
 tras comprobar URL HTTPS, firma y Google real. La autorización recibida permite la
 pista interna, no producción. Si no hay sesión/permisos, guardar el material local.

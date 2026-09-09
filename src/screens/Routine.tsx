@@ -33,7 +33,6 @@ import { levelName, muscleName, muscles } from "../data/options";
 import { copy } from "../config";
 import { ExerciseEditor } from "../components/ExerciseEditor";
 import { routineSchedule, weekdayName } from "../logic/schedule";
-import { ExerciseTiers } from "../components/ExerciseTiers";
 import { RoutineCalendar } from "../components/RoutineCalendar";
 import { Muscle } from "../types";
 import { useCommunity } from "../state/Community";
@@ -94,8 +93,8 @@ export function RoutineOverview() {
       const url = routineShareUrl(published.id, process.env.EXPO_PUBLIC_WEB_URL,
         Linking.createURL("/shared-routine", { queryParams: { id: published.id } }));
       await Share.share({
-        title: "Rutina de Gym Buddy",
-        message: `Te comparto mi rutina de Gym Buddy. Puedes copiar su estructura y las notas de cada ejercicio, sin mis pesos: ${url}`,
+        title: "Rutina de Akhyles",
+        message: `Te comparto mi rutina de Akhyles. Puedes copiar su estructura y las notas de cada ejercicio, sin mis pesos: ${url}`,
         url,
       });
       setNotice("Enlace de rutina actualizado. Compártelo por WhatsApp o la red que prefieras.");
@@ -119,18 +118,6 @@ export function RoutineOverview() {
             {messages.Routine.diasSemana}
           </Txt>
         </Row>
-        <Txt size={13} muted>
-          {p.sex === "male" ? messages.Routine.hombre : messages.Routine.mujer}{" "}
-          · {p.age}
-          {messages.Routine.anos}
-          {p.height}
-          {messages.Routine.cm}
-          {p.weight}
-          {messages.Routine.kg}
-          {p.fatMode !== "unknown"
-            ? ` · ${p.bodyFat}% graso${p.fatMode === "photo" ? " (simulado)" : ""}`
-            : ""}
-        </Txt>
         <Txt size={14}>
           {hasMesocycle(p) ? messages.Routine.mesociclo : messages.Routine.prioridad}
           {muscleName(p.priority)}
@@ -171,9 +158,9 @@ export function RoutineOverview() {
         {messages.Routine.distribucionSemanal}
       </Txt>
       <Notice>Los abdominales se colocan preferentemente en los días de pierna. Entrenarlos los fortalece; para que se marquen, lo principal es reducir el porcentaje graso mediante la dieta. Su efecto visual directo es menor.</Notice>
-      {state.programRevision !== 5 && <Card>
+      {state.programRevision !== 6 && <Card>
         <Txt>Tu rutina guardada pertenece a la versión anterior. Puedes aplicar los nuevos volúmenes y límites conservando el historial y las cargas; se regenerará el orden y las series del plan.</Txt>
-        <Button label="Actualizar rutina a nuevas reglas" onPress={() => update(s => ({ ...s, programRevision: 5, routine: generateRoutine(s.profile, s.preferences, s.volumeTargets) }))} />
+        <Button label="Actualizar rutina a nuevas reglas" onPress={() => update(s => ({ ...s, programRevision: 6, routine: generateRoutine(s.profile, s.preferences, s.volumeTargets) }))} />
       </Card>}
       {state.routine.map((d, i) => (
         <Choice
@@ -321,7 +308,6 @@ export function RoutineOverview() {
           onPress={() => router.replace("/community")}
         />}
       </Card>
-      <ExerciseTiers />
     </>;
 }
 

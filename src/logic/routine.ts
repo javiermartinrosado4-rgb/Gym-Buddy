@@ -49,6 +49,7 @@ export function candidates(
         (profile.level === "advanced" && (muscle === "shoulders" || muscle === "triceps")
           ? Number(b.variant === "cable") - Number(a.variant === "cable")
           : 0) ||
+        Number(!!prefs.favorites?.includes(b.id)) - Number(!!prefs.favorites?.includes(a.id)) ||
         a.priority - b.priority ||
         (compound
           ? Number(b.type === "compound") - Number(a.type === "compound")
@@ -326,6 +327,9 @@ export function generateRoutine(
     const sameMuscle = day.exercises
       .map(entry => getExercise(entry.exerciseId, prefs))
       .filter(item => item.muscle === exercise.muscle);
+    if (count === 3 && profile.priority === "balanced" && day.name.startsWith("Torso") &&
+      (exercise.muscle === "biceps" || exercise.muscle === "triceps") && sameMuscle.length >= 1)
+      return false;
     const directArms = day.exercises
       .map(entry => getExercise(entry.exerciseId, prefs))
       .filter(item => item.muscle === "biceps" || item.muscle === "triceps");
@@ -372,6 +376,14 @@ export function generateRoutine(
       if (sameMuscle.length === 2) return exercise.id === "leg-press";
       if (sameMuscle.length >= 3) return false;
     }
+    if (exercise.muscle === "abs" && sameMuscle.length >= 1 &&
+      !(hasMesocycle(profile) && profile.priority === "abs")) return false;
+    // For a balanced three-day plan the leg day gets motivating abs by
+    // default; calves become the alternative instead of extending the day
+    // with both accessories.
+    if (exercise.muscle === "calves" && count === 3 && profile.priority === "balanced" &&
+      day.name.startsWith("Pierna") && day.exercises.some(entry =>
+        getExercise(entry.exerciseId, prefs).muscle === "abs")) return false;
     if (exercise.muscle === "hamstrings" && sameMuscle.length === 1 &&
       isRomanianDeadlift(sameMuscle[0]))
       return isHamstringMachineCurl(exercise);
@@ -487,7 +499,7 @@ export function generateRoutine(
   };
   // Put glutes next to the other lower-body staples so their base work lands
   // on the leg day before a full-body day spends its limited heavy slots.
-  const muscles: Muscle[] = ["quads", "glutes", "chest", "back", "hamstrings", "shoulders", "calves", "abs", "biceps", "triceps"];
+  const muscles: Muscle[] = ["quads", "glutes", "chest", "back", "hamstrings", "shoulders", "abs", "calves", "biceps", "triceps"];
   if (profile.priority !== "balanced") muscles.sort((a, b) => Number(b === profile.priority) - Number(a === profile.priority));
   if (profile.priority !== "balanced") {
     for (const day of days.slice(0, 3)) add(day, profile.priority);

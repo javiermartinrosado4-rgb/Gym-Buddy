@@ -78,6 +78,7 @@ export const emptyProfile: Profile = {
 };
 export const emptyPreferences: Preferences = {
   unavailable: [],
+  favorites: [],
   equipment: ["machine", "free", "cable", "smith"],
   names: {},
   notes: {},

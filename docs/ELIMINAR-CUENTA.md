@@ -1,4 +1,4 @@
-# Solicitud de eliminación de cuenta de Gym Buddy
+# Solicitud de eliminación de cuenta de Akhyles
 
 Texto listo para publicar cuando exista email público verificado y URL HTTPS.
 

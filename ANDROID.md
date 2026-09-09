@@ -1,4 +1,4 @@
-# Gym Buddy para Android
+# Akhyles para Android
 
 > Revisión actual: `versionCode` 2. La release conectada requiere URL pública HTTPS
 > comprobada y produce `gym-buddy-release.apk` / `.aab`. Sin hosting, usar
@@ -35,7 +35,7 @@ No desinstales la app para actualizar: instala encima con `adb install -r`. Los 
 
 ## Comunidad y Google
 
-Define `EXPO_PUBLIC_COMMUNITY_URL` con la URL HTTPS real del backend **antes de compilar**. Opcionalmente, define `EXPO_PUBLIC_WEB_URL` con la URL HTTPS de la app web para que los enlaces compartidos tengan una vista previa accesible desde el navegador. Sin ella, se usa el enlace nativo que requiere Gym Buddy instalada.
+Define `EXPO_PUBLIC_COMMUNITY_URL` con la URL HTTPS real del backend **antes de compilar**. Opcionalmente, define `EXPO_PUBLIC_WEB_URL` con la URL HTTPS de la app web para que los enlaces compartidos tengan una vista previa accesible desde el navegador. Sin ella, se usa el enlace nativo que requiere Akhyles instalada.
 
 Sin servidor configurado, la APK permite entrenar y guardar datos sin conexión y explica que Comunidad todavía no está disponible. No conecta accidentalmente al propio móvil. Google necesita además `GYM_GOOGLE_CLIENT_ID` en el backend y un cliente OAuth Android con el identificador del paquete y la huella SHA-1 de la firma. Se utiliza Credential Manager, un nonce emitido por el servidor y la verificación del ID token existente; cancelar el selector no inicia ninguna sesión.
 

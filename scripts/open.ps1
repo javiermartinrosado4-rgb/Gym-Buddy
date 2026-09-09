@@ -6,14 +6,14 @@ $listener = Get-NetTCPConnection -LocalPort 8081 -State Listen -ErrorAction Sile
 if ($listener) {
     $serverProcess = Get-CimInstance Win32_Process -Filter "ProcessId = $($listener.OwningProcess)"
     if ($serverProcess.Name -eq 'node.exe' -and $serverProcess.CommandLine.Contains($projectPath) -and $serverProcess.CommandLine.Contains('expo')) {
-        Write-Host 'Gym Buddy ya esta en marcha. Abriendo el navegador.'
+        Write-Host 'Akhyles ya esta en marcha. Abriendo el navegador.'
         Start-Process 'http://localhost:8081'
         exit 0
     }
-    Write-Host 'Otra aplicacion esta utilizando el puerto 8081. Cierrala antes de abrir Gym Buddy.'
+    Write-Host 'Otra aplicacion esta utilizando el puerto 8081. Cierrala antes de abrir Akhyles.'
     exit 1
 }
 $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + $env:Path
-Write-Host 'Abriendo Gym Buddy. Deja esta ventana abierta mientras utilizas la aplicacion.'
+Write-Host 'Abriendo Akhyles. Deja esta ventana abierta mientras utilizas la aplicacion.'
 Write-Host 'Para detenerla, pulsa Ctrl+C o utiliza Detener Gym Buddy.cmd.'
 & npx.cmd expo start --web --localhost --port 8081

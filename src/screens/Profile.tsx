@@ -26,6 +26,7 @@ import { number, profileErrors } from "../logic/validation";
 import { availableWeekdays, localDateKey, weekdayName } from "../logic/schedule";
 import { Avatar, AvatarSelect } from "../components/Avatar";
 import { GoogleSignIn } from "../components/GoogleSignIn";
+import { ExerciseTiers } from "../components/ExerciseTiers";
 export default function Profile() {
   const { state, update } = useStore();
   const [editing, setEditing] = useState(false);
@@ -53,7 +54,7 @@ export default function Profile() {
     update((s) => ({
       ...s,
       profile,
-      programRevision: planChanged ? 5 : s.programRevision,
+      programRevision: planChanged ? 6 : s.programRevision,
       preferences: prefs,
       bodyWeights: number(s.profile.weight) === number(profile.weight) && s.bodyWeights?.length
         ? s.bodyWeights : [...(s.bodyWeights ?? []), { date: new Date().toISOString(), weight: number(profile.weight) }],
@@ -79,14 +80,6 @@ export default function Profile() {
             {!!state.profile.handle && <Txt muted>@{state.profile.handle}</Txt>}
             <Txt size={22} weight="600">
               {levelName(state.profile.level)}
-            </Txt>
-            <Txt muted>
-              {state.profile.age}
-              {messages.Profile.anos}
-              {state.profile.height}
-              {messages.Profile.cm}
-              {state.profile.weight}
-              {messages.Profile.kg}
             </Txt>
             <Txt>
               {state.routine.length}
@@ -201,6 +194,7 @@ export default function Profile() {
               ))}
             </>
           )}
+          <ExerciseTiers preferences={prefs} setPreferences={setPrefs} />
           {!!Object.keys(errors).length && (
             <Notice error>
               {messages.Profile.revisaLosCamposIndicadosEnElPerfil}

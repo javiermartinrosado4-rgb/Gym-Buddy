@@ -10,5 +10,5 @@ foreach ($listener in $listeners) {
         $stopped = $true
     }
 }
-if ($stopped) { Write-Host 'Gym Buddy se ha detenido. Entrenamientos, cuentas y fotos guardadas se conservan.' }
-else { Write-Host 'Gym Buddy no esta en marcha. No se ha detenido ninguna otra aplicacion.' }
+if ($stopped) { Write-Host 'Akhyles se ha detenido. Entrenamientos, cuentas y fotos guardadas se conservan.' }
+else { Write-Host 'Akhyles no esta en marcha. No se ha detenido ninguna otra aplicacion.' }

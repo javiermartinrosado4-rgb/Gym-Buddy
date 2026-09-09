@@ -1,4 +1,4 @@
-# Gym Buddy
+# Akhyles
 
 Android: consulta [ANDROID.md](ANDROID.md) para generar la APK instalable, conservar la firma y configurar Comunidad.
 
@@ -8,7 +8,7 @@ Aplicación local de gimnasio en español, construida con React Native, Expo SDK
 
 ## Abrir
 
-Abre **Abrir Gym Buddy.cmd** desde esta carpeta. La app está en http://localhost:8081. Para detenerla puedes usar **Detener Gym Buddy.cmd**.
+Abre **Abrir Akhyles.cmd** desde esta carpeta. La app está en http://localhost:8081. Para detenerla puedes usar **Detener Akhyles.cmd**.
 
 La rutina y el historial se guardan en este navegador y dirección. Comunidad tiene cuentas independientes con contraseña, fotos y seguidores en un servidor compartido. El lanzador inicia ese servidor en el puerto 8082, accesible desde este equipo. Cerrar la sesión local conserva los entrenamientos y cierra también el acceso social; la sesión local no es un bloqueo con contraseña.
 

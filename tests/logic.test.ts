@@ -311,6 +311,22 @@ test("abdominal work is assigned to leg days when the split has them", () => {
   assert.ok(daysWithAbs.length > 0);
   assert.ok(daysWithAbs.every(day => day.name.startsWith("Pierna")));
 });
+test("balanced three-day plans keep the leg day focused and let favorites break compatible ties", () => {
+  const routine = generateRoutine({ ...demoProfile, days: 3, priority: "balanced" }, emptyPreferences);
+  const leg = routine.find(day => day.name === "Pierna")!;
+  const torso = routine.find(day => day.name === "Torso")!;
+  const legExercises = leg.exercises.map(entry => getExercise(entry.exerciseId, emptyPreferences));
+  assert.equal(legExercises.filter(exercise => exercise.muscle === "abs").length, 1);
+  assert.equal(legExercises.filter(exercise => exercise.muscle === "calves").length, 0);
+  assert.equal(torso.exercises.filter(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "biceps").length, 1);
+  assert.equal(torso.exercises.filter(entry => getExercise(entry.exerciseId, emptyPreferences).muscle === "triceps").length, 1);
+  const pulls = torso.exercises.map(entry => getExercise(entry.exerciseId, emptyPreferences))
+    .filter(exercise => exercise.muscle === "back").map(exercise => exercise.pullPattern);
+  assert.deepEqual(new Set(pulls), new Set(["horizontal", "vertical"]));
+
+  const preferred = candidates("chest", demoProfile, { ...emptyPreferences, favorites: ["chest-press-free"] }, true);
+  assert.equal(preferred[0].id, "chest-press-free");
+});
 test("quad generation selects one hack pattern and uses leg press for added heavy volume", () => {
   const routine = generateRoutine(
     { ...demoProfile, days: 4, level: "advanced", priority: "balanced" },

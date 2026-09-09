@@ -1,8 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <circle cx="512" cy="512" r="295" fill="#E4EBE2"/>
-  <circle cx="512" cy="512" r="235" fill="#F8F8F5"/>
-  <g fill="none" stroke="#456351" stroke-width="29" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M474 452 C446 412 368 417 355 480 C335 569 395 611 468 573 V521 H421"/>
-    <path d="M543 433 V589 H600 C680 589 680 508 600 508 H543 M543 433 H593 C662 433 662 508 600 508"/>
-  </g>
+  <defs><linearGradient id="sage" x1="190" y1="170" x2="790" y2="800" gradientUnits="userSpaceOnUse"><stop stop-color="#9AB9AD"/><stop offset="1" stop-color="#3F6B5F"/></linearGradient></defs>
+  <path fill="url(#sage)" d="M512 176 216 666h142l154-255 154 255h142L512 176Z"/>
+  <path fill="url(#sage)" d="M248 732h528l-65-108H313l-65 108Z"/>
 </svg>

@@ -22,7 +22,7 @@ SSH y acceso existente. Docker Compose, disco persistente y puertos 80/443. La A
 admite hasta 1 GB y las copias hasta 3 GB; dimensionar también el sistema operativo.
 Abrir panel del dominio > DNS: registro A/AAAA de la API hacia el servidor.
 Abrir almacenamiento > bucket privado externo: endpoint S3, región y credencial
-limitada al prefijo de Gym Buddy. Introducir secretos directamente en el host.
+limitada al prefijo de Akhyles. Introducir secretos directamente en el host.
 
 Clonar el repositorio. Crear `server/.env.production` y `server/.env.backup` a partir
 de sus ejemplos, con permisos 0600 y fuera de Git.

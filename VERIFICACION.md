@@ -1,4 +1,4 @@
-# Verificación de Gym Buddy — revisión de requisitos
+# Verificación de Akhyles — revisión de requisitos
 
 7 de septiembre de 2026. Revisión final de los cambios locales: TypeScript y ESLint sin errores. Las 14 pruebas de lógica pasan, incluyendo 420 combinaciones de perfil, volumen semanal, especialización, progresión de 35 a 36,25 kg, exclusiones del cálculo de puntuación, calendario semanal y comparación de sesiones equivalentes. Las 11 pruebas de navegador pasan: registro y recarga, navegación flexible durante el entrenamiento, borradores por ejercicio, ejercicios omitidos, edición durante una sesión, cierre/reapertura local, comunidad, migración voluntaria de rutinas, fotografías simuladas, accesibilidad, persistencia y resumen de Hoy.
 

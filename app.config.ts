@@ -28,7 +28,7 @@ const config: ExpoConfig = {
     "expo-router",
     "expo-secure-store",
     "./plugins/withAndroidSigning",
-    ["expo-splash-screen", { image: "./assets/brand/splash.png", imageWidth: 180, backgroundColor: "#F7F8F2", dark: { backgroundColor: "#121713" } }],
+    ["expo-splash-screen", { image: "./assets/brand/splash.png", imageWidth: 180, backgroundColor: "#0F1412", dark: { backgroundColor: "#0F1412" } }],
     ["expo-build-properties", { android: { usesCleartextTraffic: localAndroid } }],
     // Android autolinks Nitro Google Sign-In; its client ID comes from our API.
     // The package's config plugin is only needed for Firebase files / iOS.

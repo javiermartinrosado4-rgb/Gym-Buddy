@@ -59,7 +59,7 @@ export default function Onboarding() {
       update((s) => ({
         ...s,
         completed: true,
-        programRevision: 5,
+        programRevision: 6,
         routine: generateRoutine(s.profile, s.preferences),
       }));
       router.replace("/today");

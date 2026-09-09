@@ -67,6 +67,8 @@ export interface Day {
 }
 export interface Preferences {
   unavailable: string[];
+  /** Exercises the athlete wants the automatic generator to prefer when compatible. */
+  favorites?: string[];
   equipment: Variant[];
   names: Record<string, string>;
   /** Personal reminders shown while logging this specific exercise. */

@@ -1,6 +1,6 @@
 import { messages } from "../content/es";
 import { Redirect, router } from "expo-router";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { APP, copy } from "../config";
 import { useStore } from "../state/Store";
 import { useTheme } from "../theme";
@@ -11,7 +11,7 @@ export default function Welcome() {
   const { colors } = useTheme();
   if (state.completed && !state.signedOut) return <Redirect href="/today" />;
   if (state.signedOut) return <Page>
-    <Heading title="Gym Buddy" subtitle="Has cerrado tu sesión local. Tus entrenamientos están guardados en este dispositivo." />
+    <Heading title={APP.name} subtitle="Has cerrado tu sesión local. Tus entrenamientos están guardados en este dispositivo." />
     <Button label="Continuar con mi perfil" onPress={() => { update(s => ({ ...s, signedOut: false })); router.replace("/today"); }} />
     <GoogleSignIn enter />
     <Txt muted size={12}>El perfil local se conserva en este dispositivo. Google permite acceder a tu cuenta de Comunidad.</Txt>
@@ -20,7 +20,7 @@ export default function Welcome() {
     <Page>
       <Row style={{ justifyContent: "space-between" }}>
         <Row>
-          <Icon name="disc" size={24} />
+          <Image source={require("../../assets/brand/foreground.png")} style={{ width: 28, height: 28 }} accessibilityLabel="Akhyles" />
           <Txt size={21} weight="600" style={{ letterSpacing: -0.8 }}>
             {APP.name}
           </Txt>
@@ -63,13 +63,7 @@ export default function Welcome() {
               justifyContent: "center",
             }}
           >
-            <Txt
-              size={62}
-              weight="500"
-              style={{ letterSpacing: -4, lineHeight: 72 }}
-            >
-              GB
-            </Txt>
+            <Image source={require("../../assets/brand/foreground.png")} style={{ width: 120, height: 120 }} accessibilityLabel="Akhyles" />
             <Txt size={10} muted style={{ letterSpacing: 3 }}>
               {messages.Welcome.menosEsMas}
             </Txt>

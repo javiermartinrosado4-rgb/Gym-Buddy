@@ -1,4 +1,4 @@
-# Referencias visuales de Gym Buddy
+# Referencias visuales de Akhyles
 
 Guarda aquí las imágenes, capturas o ejemplos de diseño que quieras utilizar como referencia.
 Puedes crear subcarpetas como perfil, rutina, progreso y comunidad a medida que las necesites.

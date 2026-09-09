@@ -65,6 +65,10 @@ export function decodeState(raw: string): AppState {
   if (
     !Array.isArray(prefs.custom) ||
     !Array.isArray(prefs.unavailable) ||
+    (prefs.favorites !== undefined &&
+      (!Array.isArray(prefs.favorites) ||
+        prefs.favorites.some(id => typeof id !== "string") ||
+        new Set(prefs.favorites).size !== prefs.favorites.length)) ||
     !Array.isArray(prefs.equipment) ||
     !prefs.names ||
     (prefs.notes !== undefined &&
@@ -75,6 +79,7 @@ export function decodeState(raw: string): AppState {
   )
     throw new Error("Invalid preferences");
   const ids = new Set([...catalog, ...prefs.custom].map((e) => e.id));
+  if (prefs.favorites?.some(id => !ids.has(id))) throw new Error("Invalid favorite exercises");
   if (
     s.routine.some(
       (d) =>

@@ -31,7 +31,7 @@ export function ComparisonCard() {
     <Button label={details ? "Ocultar método de comparación" : "Cómo se compara"} compact variant="ghost" onPress={() => setDetails(!details)} />
     {details && <Txt muted size={12}>Se necesitan al menos 7 días entre registros, una medición en la última semana y 5 personas comparables. Solo se incluyen sesiones registradas con tu nivel actual; las antiguas sin nivel guardado permanecen en tus gráficas. El ritmo usa fuerza estimada a partir de carga y 1–12 repeticiones. «En la media» significa una diferencia de hasta 1 punto porcentual por 28 días. Es una referencia orientativa basada en registros declarados.</Txt>}
     {user ? <>
-      <Txt muted size={12}>Al comparar, compartes con Gym Buddy las fechas, ejercicios homologados y fuerza estimada de este dispositivo como @{user.handle}. Los demás solo reciben resultados agregados.</Txt>
+      <Txt muted size={12}>Al comparar, compartes con Akhyles las fechas, ejercicios homologados y fuerza estimada de este dispositivo como @{user.handle}. Los demás solo reciben resultados agregados.</Txt>
       <Button label={busy ? "Comparando…" : "Compartir registros y comparar"} disabled={busy} onPress={async () => {
         setBusy(true); setError(""); setMessage("");
         try { setSaved({ result: await request<ComparisonResult>("/comparison", "POST", sample), signature, userId: user.id }); }

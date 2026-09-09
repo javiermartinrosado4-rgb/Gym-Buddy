@@ -1,6 +1,6 @@
 import { messages } from "../content/es";
 import { router } from "expo-router";
-import { View } from "react-native";
+import { Image, View } from "react-native";
 import { APP, copy } from "../config";
 import {
   Button,
@@ -82,7 +82,7 @@ export default function Today() {
   return (
     <Page>
       <Row style={{ justifyContent: "space-between" }}>
-        <Txt size={21} weight="600">{APP.name}</Txt>
+        <Row><Image source={require("../../assets/brand/foreground.png")} style={{ width: 26, height: 26 }} accessibilityLabel="Akhyles" /><Txt size={21} weight="600">{APP.name}</Txt></Row>
         <Pill>{messages.Today.unPasoALaVez}</Pill>
       </Row>
       <Heading
@@ -136,7 +136,7 @@ export default function Today() {
           <Row>
             <Icon name="clock" size={16} />
             <Txt size={14}>
-              {completed?.minutes ?? duration(session, state.preferences)} min
+              ≈ {duration(session, state.preferences)} min estimados
             </Txt>
             <Txt muted>·</Txt>
             <Txt size={14}>

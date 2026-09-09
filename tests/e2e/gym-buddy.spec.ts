@@ -24,7 +24,7 @@ test("reorder, profile edits during a workout, community and local logout surviv
   page.on("pageerror", e => errors.push(e.message));
   const initial = seed();
   await load(page, initial);
-  await expect(page).toHaveTitle(/Gym Buddy/);
+  await expect(page).toHaveTitle(/Akhyles/);
   await page.getByRole("button", { name: "Bajar ejercicio 1", exact: true }).click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!).routine[0].exercises[0].id)).toBe(initial.routine[0].exercises[1].id);
   await page.reload();

@@ -145,7 +145,7 @@ export function createGymServer({ database = ":memory:", origins = ["http://loca
         let googleUser = existing ? getUser(existing.user_id) : undefined;
         if (!googleUser) {
           const id = randomUUID();
-          googleUser = { id, handle: `gym_${id.replace(/-/g, "").slice(0, 16)}`, name: identity.name?.slice(0, 80).trim() || "Gym Buddy", bio: "", level: validLevel(data.level) ? String(data.level) : "beginner", salt: randomBytes(16).toString("hex"), password: randomBytes(64).toString("hex") };
+          googleUser = { id, handle: `akh_${id.replace(/-/g, "").slice(0, 16)}`, name: identity.name?.slice(0, 80).trim() || "Akhyles", bio: "", level: validLevel(data.level) ? String(data.level) : "beginner", salt: randomBytes(16).toString("hex"), password: randomBytes(64).toString("hex") };
           db.exec("BEGIN");
           try {
             db.prepare("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)").run(id, googleUser.handle, googleUser.name, "", googleUser.level, googleUser.salt, googleUser.password);

@@ -3,12 +3,12 @@
 ## Pantallas y datos exactos pendientes
 
 Abrir https://console.cloud.google.com/auth/overview y seleccionar el proyecto
-propietario. **Google Auth Platform > Branding**: Gym Buddy, soporte, dominios y
+propietario. **Google Auth Platform > Branding**: Akhyles, soporte, dominios y
 privacidad reales. **Audience**: público adecuado y cuentas de prueba si usa Testing.
 
 **Clients > Create client > Android**:
 
-- Nombre: Gym Buddy Android local release.
+- Nombre: Akhyles Android local release.
 - Paquete: `com.javiermartinrosado.gymbuddy`.
 - SHA-1 existente: `04:0E:A0:AF:D7:97:F2:27:30:19:8C:DB:42:95:C4:76:3A:B8:6A:B7`.
 
@@ -26,7 +26,7 @@ Estado: código integrado; clientes reales y login Google sin confirmar. Los tes
 con verificador simulado no son evidencia de activación.
 
 1. En Google Cloud, configura la pantalla de consentimiento, el correo de asistencia y la información pública de la aplicación.
-2. Autoriza los orígenes exactos donde se abre Gym Buddy (desarrollo: `http://localhost:8081` y `http://127.0.0.1:8081`; producción: el dominio HTTPS real).
+2. Autoriza los orígenes exactos donde se abre Akhyles (desarrollo: `http://localhost:8081` y `http://127.0.0.1:8081`; producción: el dominio HTTPS real).
 3. Define `GYM_GOOGLE_CLIENT_ID` en el entorno del servidor con el identificador terminado en `.apps.googleusercontent.com` y reinicia el servidor de Comunidad. No se necesita un secreto de cliente para este flujo.
 4. Si la aplicación de Google está en pruebas, incluye las cuentas de prueba en su configuración.
 5. Para Android, crea además un cliente OAuth de tipo Android con el paquete `com.javiermartinrosado.gymbuddy` y la huella SHA-1 de la firma de publicación que figura en `ANDROID-QA.md`. El cliente web sigue siendo el `webClientId` que recibe el flujo nativo para verificar el ID token en el backend.
