@@ -7,14 +7,14 @@ if (!localAndroid && process.env.EXPO_PUBLIC_COMMUNITY_URL) requirePublicHttps(p
 const config: ExpoConfig = {
   name: APP.name,
   slug: APP.slug,
-  version: "1.0.0",
+  version: "1.0.1",
   orientation: "portrait",
   scheme: APP.slug,
   userInterfaceStyle: "automatic",
   icon: "./assets/brand/icon.png",
   android: {
     package: "com.javiermartinrosado.gymbuddy",
-    versionCode: 2,
+    versionCode: 3,
     allowBackup: false,
     softwareKeyboardLayoutMode: "resize",
     adaptiveIcon: {

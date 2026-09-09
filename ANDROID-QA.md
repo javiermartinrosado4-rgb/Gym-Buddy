@@ -1,15 +1,15 @@
 # Verificación Android — 9 de septiembre de 2026
 
-## Revisión actual: versionCode 2
+## Revisión actual: versionCode 3
 
-**Estado: vista previa offline firmada actualizada. No hay backend público ni Google OAuth real
+**Estado: Akhyles 1.0.1, vista previa offline firmada. No hay backend público ni Google OAuth real
 activados; no se ha subido a Play.** Los apartados posteriores titulados Entrega y
 Comprobaciones describen la revisión histórica `versionCode` 1.
 
 | Archivo nuevo excluido de Git | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `artifacts/android/akhyles-offline-preview.apk` | 73755633 | `3c240defab9cc184415c10554b812a23f4a031eedab966e7008ec92a2c592f87` |
-| `artifacts/android/akhyles-offline-preview.aab` | 52041028 | `1d7c35cdc52f8b7dc62a9041eb8d40a35b1e78567b967802df1330086d716343` |
+| `artifacts/android/akhyles-offline-preview.apk` | 73755637 | `9f66520515449ee80cd03e5d0d74150ba99e481f1e4ffae9e81b0b91fb6ff81d` |
+| `artifacts/android/akhyles-offline-preview.aab` | 52041043 | `92b71103e8c739b2a2b81cc4d30b4fe37838a1be0303e7a9bcfc933518a0f30d` |
 
 Comprobación reproducible: `node scripts/verify-android.mjs artifacts/android/akhyles-offline-preview.apk artifacts/android/akhyles-offline-preview.aab`.
 Informe generado: `artifacts/android/release-verification.json`; manifest extraído

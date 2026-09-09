@@ -8,7 +8,7 @@ Estado: preparado para la ficha; **no enviado a Play Console**. Revisa los campo
 | --- | --- |
 | Nombre | Akhyles |
 | Paquete | `com.javiermartinrosado.gymbuddy` |
-| Versión actual | 1.0.0 (`versionCode` 2); comprobar si Play exige uno superior |
+| Versión actual | 1.0.1 (`versionCode` 3); comprobar si Play exige uno superior |
 | Categoría propuesta | Salud y bienestar |
 | Email de soporte | [EMAIL DE SOPORTE] |
 | Sitio web | [URL WEB PÚBLICA] |
