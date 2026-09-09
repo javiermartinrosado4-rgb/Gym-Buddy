@@ -2,14 +2,14 @@
 
 ## Revisión actual: versionCode 2
 
-**Estado: vista previa offline firmada. No hay backend público ni Google OAuth real
+**Estado: vista previa offline firmada actualizada. No hay backend público ni Google OAuth real
 activados; no se ha subido a Play.** Los apartados posteriores titulados Entrega y
 Comprobaciones describen la revisión histórica `versionCode` 1.
 
 | Archivo nuevo excluido de Git | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `artifacts/android/akhyles-offline-preview.apk` | 73793097 | `1289a061a93cd29db4f56722986b5c27a30f14861681aac75f5e32910f4bbcfd` |
-| `artifacts/android/akhyles-offline-preview.aab` | 52102935 | `72d6c56eefc7ba6a00078437cded144b5d3a5e3640820843ed0fe1da2b8fdc77` |
+| `artifacts/android/akhyles-offline-preview.apk` | 73755633 | `3c240defab9cc184415c10554b812a23f4a031eedab966e7008ec92a2c592f87` |
+| `artifacts/android/akhyles-offline-preview.aab` | 52041028 | `1d7c35cdc52f8b7dc62a9041eb8d40a35b1e78567b967802df1330086d716343` |
 
 Comprobación reproducible: `node scripts/verify-android.mjs artifacts/android/akhyles-offline-preview.apk artifacts/android/akhyles-offline-preview.aab`.
 Informe generado: `artifacts/android/release-verification.json`; manifest extraído
@@ -24,7 +24,7 @@ en `artifacts/android/release-manifest.xml`. Firma original conservada, SHA-1
   DYNAMIC_RECEIVER_NOT_EXPORTED. SecureStore declara biometría, aunque este flujo
   guarda la sesión sin solicitar autenticación biométrica. Sin cámara, micrófono,
   lectura global de fotos ni superposición.
-- 55 pruebas de lógica/API/configuración/restauración; tipos y lint correctos.
+- 59 pruebas de lógica/API/configuración/restauración; tipos y lint correctos.
 - Guardia de release sin URL pública: salida 1 esperada, impide compilar por error
   una release conectada sin backend configurado.
 - 27 pruebas web aprobadas en ejecución completa. Primer intento interrumpido por
@@ -39,7 +39,9 @@ en `artifacts/android/release-manifest.xml`. Firma original conservada, SHA-1
   lectura completa, restauración, integridad SQLite y limpieza de staging probados
   sobre repositorio local sintético. No se ha probado un bucket externo.
 
-Emulador Android 16/API 36 x86_64; ningún móvil físico conectado. APK v2 instalada
+La build actual de Akhyles no se ha instalado aún: en esta verificación no había móvil
+físico ni emulador conectados. La evidencia anterior se obtuvo en emulador Android 16/API
+36 x86_64; la APK v2 instalada entonces
 con `adb install -r`: conserva tema oscuro, una sesión y dos series de la prueba
 anterior. Navegación a Calendario/Progreso/Comunidad correcta; Google sin endpoint
 muestra indisponibilidad. Cierre forzado y arranque con Wi-Fi/datos apagados conserva
