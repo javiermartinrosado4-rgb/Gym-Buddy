@@ -248,6 +248,16 @@ test("back exposures mix horizontal and vertical pulls and heavy exercises lead"
       assert.equal(getExercise(d.exercises[0].exerciseId, emptyPreferences).type, "compound");
   }
 });
+test("full-body plans cover a vertical and horizontal pull before repeating either", () => {
+  const routine = generateRoutine({ ...demoProfile, days: 2, priority: "balanced" }, emptyPreferences);
+  const patterns = routine
+    .filter(isFullBodyDay)
+    .flatMap(day => day.exercises)
+    .map(entry => getExercise(entry.exerciseId, emptyPreferences))
+    .filter(exercise => exercise.muscle === "back")
+    .map(exercise => exercise.pullPattern);
+  assert.deepEqual(new Set(patterns), new Set(["horizontal", "vertical"]));
+});
 test("full-body sessions cap fatigue, avoid calves and abs, and alternate muscles", () => {
   for (const days of [1, 2, 3]) {
     const routine = generateRoutine({ ...demoProfile, days, priority: "balanced" }, emptyPreferences);
@@ -283,6 +293,16 @@ test("quad generation selects one hack pattern and uses leg press for added heav
   assert.equal(new Set(quads.filter(id => id === "hack" || id === "pendulum")).size, 1);
   assert.ok(quads.includes("leg-press"));
   assert.equal(getExercise("leg-press", emptyPreferences).tier, "S");
+});
+test("advanced profiles prefer the pendulum hack over Jaca", () => {
+  const advanced = generateRoutine({ ...demoProfile, days: 2, level: "advanced", priority: "balanced" }, emptyPreferences)
+    .flatMap(day => day.exercises).map(entry => entry.exerciseId);
+  const intermediate = generateRoutine({ ...demoProfile, days: 2, level: "intermediate", priority: "balanced" }, emptyPreferences)
+    .flatMap(day => day.exercises).map(entry => entry.exerciseId);
+  assert.ok(advanced.includes("pendulum"));
+  assert.ok(!advanced.includes("hack"));
+  assert.ok(intermediate.includes("hack"));
+  assert.ok(!intermediate.includes("pendulum"));
 });
 test("lower-body sessions vary quad and hamstring movement patterns", () => {
   for (const days of [1, 2, 3, 4, 5]) {

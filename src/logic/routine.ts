@@ -321,6 +321,19 @@ export function generateRoutine(
       canUseExercise(day, e),
     );
     if (muscle === "back") {
+      const fullBodyBack = days
+        .filter(isFullBodyDay)
+        .flatMap(fullBodyDay => fullBodyDay.exercises)
+        .map(entry => getExercise(entry.exerciseId, prefs))
+        .filter(exercise => exercise.muscle === "back" && exercise.pullPattern);
+      const fullBodyPatterns = new Set(fullBodyBack.map(exercise => exercise.pullPattern));
+      // A full-body plan may only have two back slots. Cover both movement
+      // patterns before repeating one, so two rows do not occupy them both.
+      const missingFullBodyPattern = isFullBodyDay(day) && fullBodyPatterns.size === 1
+        ? fullBodyPatterns.has("horizontal") ? "vertical" : "horizontal"
+        : undefined;
+      const fullBodyPatternPriority = (exercise: Exercise) =>
+        Number(!!missingFullBodyPattern && exercise.pullPattern === missingFullBodyPattern);
       const wideUsed = exerciseUses("wide-pulldown");
       const neutralUsed = exerciseUses("neutral-pulldown");
       const pulldowns = options.filter(exercise =>
@@ -347,6 +360,7 @@ export function generateRoutine(
         shouldAddGironda && exercise.id === "gironda-row" ? 1 : 0;
       options = options.sort((a, b) =>
         girondaPriority(b) - girondaPriority(a) ||
+        fullBodyPatternPriority(b) - fullBodyPatternPriority(a) ||
         (shouldDiversifyPulldowns
           ? pulldownVariety(b) - pulldownVariety(a)
           : 0) ||
@@ -361,6 +375,10 @@ export function generateRoutine(
       options = options.sort((a, b) => Number(b.id === "seated-curl") - Number(a.id === "seated-curl"));
     }
     if (muscle === "quads") {
+      // The pendulum hack is the preferred Jaca pattern whenever the user
+      // can perform it. Jaca remains the automatic intermediate option.
+      if (profile.level === "advanced" && options.some(exercise => exercise.id === "pendulum"))
+        options = options.sort((a, b) => Number(b.id === "pendulum") - Number(a.id === "pendulum"));
       const hasSquatMachine = day.exercises.some(p => lowerMovementFamily(getExercise(p.exerciseId, prefs)) === "quad-squat-machine");
       const hasExtension = day.exercises.some(p => lowerMovementFamily(getExercise(p.exerciseId, prefs)) === "quad-extension");
       // After a heavy jaca/pendulum, the useful next quad exercise is an
