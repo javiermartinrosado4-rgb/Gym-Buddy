@@ -128,7 +128,7 @@ test("complete onboarding, back navigation, validation, editing, workout and per
     .click();
   await page.reload();
   await expect(
-    page.getByText("Pecho Mi Gimnasio", { exact: true }),
+    page.getByRole("button", { name: "Ver detalles de Pecho Mi Gimnasio", exact: true }),
   ).toBeVisible();
   await page.evaluate(() => {
     const key = "gym60:state:v1";
@@ -165,7 +165,7 @@ test("complete onboarding, back navigation, validation, editing, workout and per
     const repetitions = page.getByRole("textbox", { name: /^Repeticiones serie / });
     for (let j = 0; j < await weights.count(); j++) {
       await weights.nth(j).fill("35");
-      await repetitions.nth(j).fill("10");
+      await repetitions.nth(j).fill("9");
     }
     const finish = page.getByRole("button", {
       name: "Finalizar entrenamiento",
@@ -189,7 +189,7 @@ test("complete onboarding, back navigation, validation, editing, workout and per
   await expect(page.getByText("Tu historial", { exact: true })).toBeVisible();
   await page.reload();
   await expect(
-    page.getByText("Pecho en mi gimnasio", { exact: true }).last(),
+    page.getByText("Pecho Mi Gimnasio", { exact: true }).last(),
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -282,7 +282,7 @@ test("substitution preferences, custom exercises, demo progression, themes and s
     })
     .click();
   await expect(
-    page.getByText("Mi máquina de pecho", { exact: true }),
+    page.getByText("Mi Máquina Pecho", { exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Perfil", exact: true }).click();
   await page

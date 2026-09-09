@@ -1,5 +1,7 @@
 # Gym Buddy
 
+Android: consulta [ANDROID.md](ANDROID.md) para generar la APK instalable, conservar la firma y configurar Comunidad.
+
 Aplicación local de gimnasio en español, construida con React Native, Expo SDK 57, Expo Router y TypeScript.
 
 ## Abrir

@@ -1,0 +1,12 @@
+import sharp from "sharp";
+import { Buffer } from "node:buffer";
+import { readFile, mkdir } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+const root = new URL("../assets/brand/", import.meta.url);
+await mkdir(root, { recursive: true });
+const svg = await readFile(new URL("mark.svg", root));
+await sharp(svg).png().toFile(fileURLToPath(new URL("foreground.png", root)));
+await sharp(svg).flatten({ background: "#F8F8F5" }).png().toFile(fileURLToPath(new URL("icon.png", root)));
+await sharp(svg).resize(512).png().toFile(fileURLToPath(new URL("splash.png", root)));
+const mono = svg.toString().replace(/<circle[^>]*\/>/g, "").replaceAll("#456351", "#000000");
+await sharp(Buffer.from(mono)).png().toFile(fileURLToPath(new URL("monochrome.png", root)));

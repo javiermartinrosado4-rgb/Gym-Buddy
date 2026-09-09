@@ -48,3 +48,8 @@ playwright-report/
 # Community server: accounts and uploaded photos
 server/data/
 .env
+
+# Android build outputs and signing credentials
+artifacts/
+credentials.json
+*.keystore

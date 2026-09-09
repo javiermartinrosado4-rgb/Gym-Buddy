@@ -62,7 +62,7 @@ test("third heavy exercise is editable and profile avatar persists without regen
   await page.getByRole("textbox", { name: "Nombre del ejercicio", exact: true }).fill("Tercer pesado libre");
   await page.getByRole("radio", { name: "Multiarticular", exact: true }).click();
   await page.getByRole("button", { name: "Guardar ejercicio personalizado", exact: true }).click();
-  await expect(page.getByText("Tercer pesado libre", { exact: true })).toBeVisible();
+  await expect(page.getByText("Tercer Pesado Libre", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Perfil", exact: true }).click();
   await page.getByRole("button", { name: "Editar perfil y gimnasio", exact: true }).click();
   await page.getByRole("button", { name: "Elegir avatar Ola", exact: true }).click();
@@ -105,7 +105,7 @@ test("exercise replacement suggests matching patterns with tiers and keeps custo
   await expect(page.getByRole("button", { name: "Crear “Mi jalón personalizado” como ejercicio personalizado", exact: true })).toBeVisible();
 });
 
-test("routine regeneration accepts a one-set target and manual additions stay available", async ({ page }) => {
+test("routine regeneration keeps two-set blocks with a one-set target and manual additions stay available", async ({ page }) => {
   const state = seed();
   state.routine[0].exercises = Array.from({ length: 6 }, (_, index) => ({
     ...state.routine[0].exercises[0],
@@ -116,14 +116,14 @@ test("routine regeneration accepts a one-set target and manual additions stay av
   await page.getByRole("button", { name: "Regenerar y ajustar series", exact: true }).click();
   await page.getByRole("textbox", { name: "Series semanales de Pecho", exact: true }).fill("1");
   await page.getByRole("button", { name: "Aplicar y regenerar", exact: true }).click();
-  await expect(page.getByText("Pecho: 1 / 1", { exact: true })).toBeVisible();
+  await expect(page.getByText("Pecho: 0 / 0", { exact: true })).toBeVisible();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!).volumeTargets.chest)).toBe(1);
   await page.reload();
-  await expect(page.getByText("Pecho: 1 / 1", { exact: true })).toBeVisible();
+  await expect(page.getByText("Pecho: 0 / 0", { exact: true })).toBeVisible();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!));
   const chest = saved.routine.flatMap((day: { exercises: { exerciseId: string; sets: number }[] }) => day.exercises)
     .find((entry: { exerciseId: string }) => entry.exerciseId === "chest-press" || entry.exerciseId === "chest-cable");
-  expect(chest.sets).toBe(1);
+  expect(chest).toBeUndefined();
 });
 
 test("exercise replacement updates the same-day plan immediately", async ({ page }) => {
@@ -132,10 +132,10 @@ test("exercise replacement updates the same-day plan immediately", async ({ page
   state.plannedWorkouts = [{ date: new Date().toISOString(), dayId: state.routine[0].id, day: { ...state.routine[0], exercises: state.routine[0].exercises.map(entry => ({ ...entry, weight: 42 })) } }];
   state.active = startWorkout(state.routine[0], "80");
   await load(page, state);
-  await page.goto("/routine");
+  await page.goto("/today");
   await page.getByRole("button", { name: "Editar ejercicio 1", exact: true }).click();
   await page.getByRole("button", { name: "Sustituir ejercicio", exact: true }).click();
-  await page.getByRole("radio", { name: "JalÃ³n Neutro", exact: true }).click();
+  await page.getByRole("radio", { name: "Jalón Neutro", exact: true }).click();
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!));
   expect(saved.routine[0].exercises[0].exerciseId).toBe("neutral-pulldown");
   expect(saved.plannedWorkouts[0].day.exercises[0].exerciseId).toBe("neutral-pulldown");

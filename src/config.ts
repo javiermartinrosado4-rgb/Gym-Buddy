@@ -17,5 +17,5 @@ export const copy = {
   photo:
     "Es una estimación estética, no una medición médica. Esta demostración devuelve un resultado ficticio: no analiza tu cuerpo.",
   local:
-    "Tus respuestas y preferencias se conservan en este navegador. No necesitas una cuenta.",
+    "Tus respuestas y preferencias se conservan en este dispositivo. No necesitas una cuenta.",
 };

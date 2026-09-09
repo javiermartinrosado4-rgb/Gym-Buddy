@@ -162,14 +162,14 @@ function CommunityScreen() {
         />}
         {sharedProgress && <Card style={{ padding: 14 }}>
           <Txt weight="600">Progreso compartido</Txt>
-          <Txt muted size={13}>{sharedProgress.sessions} sesiones Â· {sharedProgress.sets} series registradas</Txt>
+          <Txt muted size={13}>{sharedProgress.sessions} sesiones · {sharedProgress.sets} series registradas</Txt>
           {sharedProgress.exercises.length ? sharedProgress.exercises.map(exercise => <Txt key={exercise.id} size={13}>
-            {exercise.name}: {exercise.weight} kg Ã— {exercise.reps}
-          </Txt>) : <Txt muted size={13}>AÃºn no hay series con carga registradas.</Txt>}
+            {exercise.name}: {exercise.weight} kg × {exercise.reps}
+          </Txt>) : <Txt muted size={13}>Aún no hay series con carga registradas.</Txt>}
         </Card>}
         {mine && <Card style={{ padding: 14 }}>
           <Txt weight="600">Privacidad de entrenamientos</Txt>
-          <Txt muted size={13}>Solo las personas a las que sigues y que tambiÃ©n te siguen podrÃ¡n ver lo que actives.</Txt>
+          <Txt muted size={13}>Solo las personas a las que sigues y que también te siguen podrán ver lo que actives.</Txt>
           <Button
             label={profile.routinePublic ? "Rutina: visible para seguidores mutuos" : "Rutina: privada"}
             compact

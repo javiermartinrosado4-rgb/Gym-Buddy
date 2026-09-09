@@ -44,7 +44,8 @@ export default function TabsLayout() {
               flex: 1,
               minHeight: 56,
               gap: 5,
-              padding: 8,
+              paddingVertical: 8,
+              paddingHorizontal: 2,
               alignItems: "center",
               justifyContent: "center",
               borderRadius: 12,
@@ -62,6 +63,10 @@ export default function TabsLayout() {
             />
             <Txt
               size={11}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+              style={{ textAlign: "center", width: "100%" }}
               weight={path === tab.path ? "600" : "400"}
               muted={path !== tab.path}
             >

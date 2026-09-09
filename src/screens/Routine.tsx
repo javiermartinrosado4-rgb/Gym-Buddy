@@ -2,6 +2,7 @@ import { messages } from "../content/es";
 import { useState } from "react";
 import { Pressable, Share, View } from "react-native";
 import * as Linking from "expo-linking";
+import { routineShareUrl } from "../logic/endpoints";
 import { router } from "expo-router";
 import {
   Button,
@@ -89,13 +90,14 @@ export function RoutineOverview() {
     setNotice("");
     try {
       const published = await request<{ id: string }>("/routines/me", "PUT", exportRoutine(state.routine, state.preferences));
-      const url = Linking.createURL("/shared-routine", { queryParams: { id: published.id } });
+      const url = routineShareUrl(published.id, process.env.EXPO_PUBLIC_WEB_URL,
+        Linking.createURL("/shared-routine", { queryParams: { id: published.id } }));
       await Share.share({
         title: "Rutina de Gym Buddy",
         message: `Te comparto mi rutina de Gym Buddy. Puedes copiar su estructura y las notas de cada ejercicio, sin mis pesos: ${url}`,
         url,
       });
-      setNotice("Enlace de rutina actualizado. CompÃ¡rtelo por WhatsApp o la red que prefieras.");
+      setNotice("Enlace de rutina actualizado. Compártelo por WhatsApp o la red que prefieras.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "No se ha podido compartir la rutina.");
     } finally {
@@ -141,7 +143,7 @@ export function RoutineOverview() {
       </Card>
       <Card>
         <Txt weight="600">Regenerar rutina</Txt>
-        <Txt muted size={13}>Elige las series semanales directas por grupo. Puedes indicar 1 para que algún ejercicio quede con una sola serie.</Txt>
+        <Txt muted size={13}>Elige las series semanales directas por grupo. La generación automática utiliza bloques de 2 series; puedes ajustar cada ejercicio manualmente después.</Txt>
         {!regenerating ? (
           <Button label="Regenerar y ajustar series" icon="refresh-cw" variant="secondary" onPress={openRegeneration} />
         ) : <>
@@ -305,9 +307,9 @@ export function RoutineOverview() {
       </Card>
       <Card>
         <Txt weight="600" size={18}>Comparte tu rutina</Txt>
-        <Txt muted size={13}>EnvÃ­a un enlace por WhatsApp o cualquier red. Quien lo abra podrÃ¡ copiar la estructura, series, repeticiones y notas de los ejercicios; las cargas no se comparten.</Txt>
+        <Txt muted size={13}>Envía un enlace por WhatsApp o cualquier red. Quien lo abra podrá copiar la estructura, series, repeticiones y notas de los ejercicios; las cargas no se comparten.</Txt>
         {user?.routinePublic ? <Button
-          label={sharing ? "Preparando enlaceâ€¦" : "Compartir rutina"}
+          label={sharing ? "Preparando enlace…" : "Compartir rutina"}
           icon="share-2"
           disabled={sharing || !state.routine.length}
           onPress={() => void shareRoutine()}

@@ -1,0 +1,58 @@
+# Verificación Android — 9 de septiembre de 2026
+
+## Entrega
+
+Gym Buddy 1.0.0 (versionCode 1), paquete `com.javiermartinrosado.gymbuddy`.
+APK release firmada, con JavaScript y recursos incluidos. AAB release firmado.
+Android mínimo API 24, objetivo API 36; arquitecturas ARM64 y x86_64.
+
+| Archivo local, excluido de Git | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `artifacts/android/gym-buddy-preview.apk` | 73761061 | `413ba923bbdd8d86f80833baa10d231726d108061c66ec1b2c1d04ff80bd8ab1` |
+| `artifacts/android/gym-buddy-release.aab` | 52075111 | `bb6d8c1e7bf05b43ad8cec230fdbd30b8c193131c9ac472d60ad9d3a7a95ede8` |
+
+Firma local de publicación, distinta de la firma debug. SHA-1 del certificado:
+`04:0E:A0:AF:D7:97:F2:27:30:19:8C:DB:42:95:C4:76:3A:B8:6A:B7`.
+La clave privada y sus contraseñas están fuera del repositorio; ver [ANDROID.md](ANDROID.md).
+
+## Comprobaciones realizadas
+
+- `npm run check`: tipos y lint correctos; 44 pruebas de lógica/servidor aprobadas.
+- `npm run test:e2e`: 26 pruebas web aprobadas en una ejecución completa.
+- `expo install --check`: dependencias compatibles con SDK 57.
+- Gradle `:app:assembleRelease :app:bundleRelease`: ambas compilaciones correctas.
+- `apksigner verify`: firma APK válida (v2).
+- `zipalign -c -P 16 4`: alineación del contenedor APK correcta.
+- `jarsigner -verify`: firma del AAB verificada. Emite avisos de certificado autofirmado, ausencia de timestamp y orden de entradas ZIP/JarInputStream; no sustituye la validación del formato Android.
+- `bundletool validate`: estructura del AAB válida. Se utiliza la [herramienta oficial de Android](https://developer.android.com/tools/bundletool).
+- Manifest release: sin `debuggable`, sin backup automático, sin HTTP en claro y sin permisos de cámara, micrófono, galería completa ni superposición de ventanas.
+
+## Pruebas nativas
+
+Emulador Android 16/API 36, x86_64, 1080 × 2400. Instalación de la APK release, sin Expo Go ni dependencia de Metro.
+
+- Primer arranque, marca GB, onboarding y generación de rutina de un día: correctos.
+- Dos series de **35 kg × 9**: registradas; siguiente carga **36,25 kg**.
+- Cierre forzado y reapertura: el borrador conserva pesos y repeticiones.
+- Finalización omitiendo otros cuatro ejercicios: una sesión y dos series en Progreso.
+- Pestañas Entrenamiento, Calendario, Progreso, Comunidad y Perfil: accesibles.
+- Tema oscuro: aplicado y conservado tras actualizar la aplicación.
+- Selector nativo de fotos: apertura, cancelación y selección de una imagen sintética de prueba; no pide acceso a toda la galería.
+- Enlace `gym-buddy://shared-routine` sin identificador: muestra error comprensible; botón Volver operativo en la APK final.
+- Google sin servidor configurado: aviso inmediato de indisponibilidad, sin cierre inesperado.
+- Actualización con `adb install -r`: mantiene historial y preferencias.
+- Arranque final con Metro detenido y Wi-Fi/datos del emulador desactivados: Entrenamiento y el historial de Progreso siguen disponibles. Conectividad restaurada después de la prueba.
+- Inspección visual final: navegación inferior en una línea, sin palabras partidas, en tema oscuro.
+- Sin errores AndroidRuntime/ReactNativeJS del proceso de Gym Buddy. El historial de salida solo refleja el cierre forzado de prueba y la actualización del paquete. Una ejecución simultánea accidental de UIAutomator falló en la herramienta de pruebas, no en la app; las inspecciones posteriores se ejecutaron en serie.
+
+Capturas locales: `artifacts/android/qa/`. `scripts/android-ui.mjs` permite repetir inspecciones, pulsaciones y capturas mediante ADB. No ejecutes dos inspecciones simultáneamente. Los datos usados son de prueba en el emulador, no datos del usuario.
+
+## Pendiente antes de una publicación pública
+
+- No se ha configurado una URL pública HTTPS de Comunidad ni OAuth real. No se han probado inicio/cancelación reales con cuentas de Google en Android ni publicación social contra un backend de producción. La lógica del servidor y los flujos sociales web sí tienen pruebas automáticas.
+- `expo-doctor` supera 20/21 comprobaciones: React Native Directory marca `react-native-nitro-google-signin` como no probado con New Architecture. El módulo compila en esta aplicación; eso no equivale a certificar todos los flujos de autenticación.
+- No probado en un teléfono físico ARM64, versiones antiguas de Android ni dispositivos con páginas de memoria de 16 KB. La alineación ZIP comprobada no sustituye esas pruebas de ejecución.
+- No publicado en Google Play. El AAB generado no implica aprobación de Play Console.
+- Los datos del navegador no se migran automáticamente a Android. No desinstalar para actualizar y conservar una copia privada de la firma.
+
+Esta entrega valida el funcionamiento local descrito, no garantiza ausencia absoluta de errores ni activa servicios externos sin sus credenciales.

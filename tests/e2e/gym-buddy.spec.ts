@@ -4,6 +4,8 @@ import { generateRoutine } from "../../src/logic/routine";
 import { AppState, Weekday, Workout } from "../../src/types";
 const seed = (): AppState => ({ version: 1, profile: demoProfile, preferences: emptyPreferences, completed: true, onboardingStep: 0, theme: "system", programRevision: 2, routine: generateRoutine(demoProfile, emptyPreferences), history: [] });
 async function load(page: Page, state: AppState) {
+  // Training now starts from today's calendar, not from a per-day start button.
+  state = { ...state, plannedWorkouts: [{ date: new Date().toISOString(), dayId: state.routine[0].id, day: state.routine[0] }] };
   await page.goto("/");
   await page.evaluate(s => localStorage.setItem("gym60:state:v1", JSON.stringify(s)), state);
   await page.goto("/today");
@@ -17,7 +19,6 @@ test("reorder, profile edits during a workout, community and local logout surviv
   await page.getByRole("button", { name: "Bajar ejercicio 1", exact: true }).click();
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("gym60:state:v1")!).routine[0].exercises[0].id)).toBe(initial.routine[0].exercises[1].id);
   await page.reload();
-  await page.getByRole("button", { name: `Entrenar ${initial.routine[0].name}`, exact: true }).click();
   await page.getByRole("button", { name: "Iniciar entrenamiento", exact: true }).click();
   await page.getByRole("textbox", { name: "Peso serie 1", exact: true }).fill("35");
   await page.getByRole("button", { name: "Guardar y salir", exact: true }).click();
@@ -70,7 +71,6 @@ test("workout arrows preserve drafts and skipped exercises only affect today's s
   const exerciseCount = state.routine[0].exercises.length;
   const routineIds = state.routine[0].exercises.map((entry) => entry.id);
   await load(page, state);
-  await page.getByRole("button", { name: `Entrenar ${state.routine[0].name}`, exact: true }).click();
   await page.getByRole("button", { name: "Iniciar entrenamiento", exact: true }).click();
   await page.getByRole("textbox", { name: "Peso serie 1", exact: true }).fill("35");
   await page.getByRole("textbox", { name: "Repeticiones serie 1", exact: true }).fill("8");

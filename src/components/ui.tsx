@@ -30,7 +30,7 @@ export function Txt({
   style?: TextStyle;
 } & Pick<
   React.ComponentProps<typeof Text>,
-  "accessibilityRole" | "accessibilityLiveRegion" | "testID" | "numberOfLines" | "ellipsizeMode"
+  "accessibilityRole" | "accessibilityLiveRegion" | "testID" | "numberOfLines" | "ellipsizeMode" | "adjustsFontSizeToFit" | "minimumFontScale"
 >) {
   const { colors } = useTheme();
   return (

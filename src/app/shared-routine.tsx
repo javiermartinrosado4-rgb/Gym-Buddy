@@ -51,26 +51,27 @@ export default function SharedRoutineScreen() {
   };
 
   return <Page>
+    <Button label="Volver" compact variant="ghost" icon="arrow-left" onPress={() => router.canGoBack() ? router.back() : router.replace(state.completed ? "/today" : "/")} />
     <Heading eyebrow="Rutina compartida" title="Copia un plan" subtitle="Revisa el contenido antes de sustituir tu rutina actual." />
-    {(invalidId || !!error) && <Notice error={true}>{invalidId ? "El enlace de rutina no es vÃ¡lido." : error}</Notice>}
-    {!invalidId && !user && <Notice>Inicia sesiÃ³n en Comunidad y seguidse mutuamente para abrir rutinas privadas compartidas.</Notice>}
-    {!invalidId && !error && !published && <Txt muted>Cargando rutina compartidaâ€¦</Txt>}
+    {(invalidId || !!error) && <Notice error={true}>{invalidId ? "El enlace de rutina no es válido." : error}</Notice>}
+    {!invalidId && !user && <Notice>Inicia sesión en Comunidad. Para abrir una rutina privada, tú y su propietario debéis seguiros mutuamente.</Notice>}
+    {!invalidId && !error && !published && <Txt muted>Cargando rutina compartida…</Txt>}
     {published && <>
       <Card>
         <Pill>@{published.owner.handle}</Pill>
         <Txt size={22} weight="600">Rutina de {published.owner.name}</Txt>
-        <Txt muted>{published.routine.days.length} dÃ­as Â· {published.routine.days.reduce((sum, day) => sum + day.exercises.length, 0)} ejercicios</Txt>
+        <Txt muted>{published.routine.days.length} días · {published.routine.days.reduce((sum, day) => sum + day.exercises.length, 0)} ejercicios</Txt>
       </Card>
       {published.routine.days.map(day => <Card key={day.name}>
         <Txt weight="600" size={18}>{day.name}</Txt>
         {day.exercises.map((exercise, index) => <Txt key={`${exercise.exerciseId}-${index}`}>
-          {exercise.name} Â· {exercise.sets} Ã— {exercise.range[0]}â€“{exercise.range[1]}
+          {exercise.name} · {exercise.sets} × {exercise.range[0]}–{exercise.range[1]}
           {exercise.note ? `\nNota: ${exercise.note}` : ""}
         </Txt>)}
       </Card>)}
       {!state.completed ? <Notice>Completa primero tu perfil de entrenamiento para poder guardar esta rutina.</Notice> : confirming ? <Card>
-        <Txt weight="600">Â¿Copiar esta rutina?</Txt>
-        <Txt muted>Se reemplazarÃ¡ tu estructura actual y se reiniciarÃ¡n los pesos. Tus notas personales existentes para un mismo ejercicio se conservan.</Txt>
+        <Txt weight="600">¿Copiar esta rutina?</Txt>
+        <Txt muted>Se reemplazará tu estructura actual y se reiniciarán los pesos. Tus notas personales existentes para un mismo ejercicio se conservan.</Txt>
         <Button label="Copiar rutina" onPress={apply} />
         <Button label="Cancelar" variant="ghost" compact onPress={() => setConfirming(false)} />
       </Card> : <Button label="Copiar esta rutina" icon="copy" onPress={() => setConfirming(true)} />}
