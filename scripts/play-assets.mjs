@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const output = new URL("../assets/play/", import.meta.url);
 await mkdir(output, { recursive: true });
-await sharp(fileURLToPath(new URL("../assets/brand/icon.png", import.meta.url))).resize(512, 512).flatten({ background: "#F7F8F2" }).png().toFile(fileURLToPath(new URL("icon-512.png", output)));
+await sharp(fileURLToPath(new URL("../assets/brand/icon.png", import.meta.url))).resize(512, 512).flatten({ background: "#070A09" }).png().toFile(fileURLToPath(new URL("icon-512.png", output)));
 const graphic = `<svg width="1024" height="500" viewBox="0 0 1024 500" xmlns="http://www.w3.org/2000/svg">
   <rect width="1024" height="500" fill="#F7F8F2"/>
   <circle cx="820" cy="122" r="260" fill="#E5EDE3"/><circle cx="1000" cy="470" r="230" fill="#D4E2D5"/>

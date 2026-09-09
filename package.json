@@ -51,7 +51,7 @@
     "android:apk": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Format apk",
     "android:aab": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Format aab",
     "brand:assets": "node scripts/brand-assets.mjs",
-    "play:assets": "node scripts/play-assets.mjs",
+    "play:assets": "node scripts/play-assets-akhyles.mjs",
     "check:secrets": "node scripts/check-git-secrets.mjs",
     "check": "npm run typecheck && npm run lint && npm test && npm run check:secrets"
   },

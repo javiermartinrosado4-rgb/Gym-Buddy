@@ -20,7 +20,7 @@ export default function Welcome() {
     <Page>
       <Row style={{ justifyContent: "space-between" }}>
         <Row>
-          <Image source={require("../../assets/brand/foreground.png")} style={{ width: 28, height: 28 }} accessibilityLabel="Akhyles" />
+          <Image source={require("../../assets/brand/icon.png")} style={{ width: 28, height: 28, borderRadius: 7 }} accessibilityLabel="Akhyles" />
           <Txt size={21} weight="600" style={{ letterSpacing: -0.8 }}>
             {APP.name}
           </Txt>
@@ -63,9 +63,9 @@ export default function Welcome() {
               justifyContent: "center",
             }}
           >
-            <Image source={require("../../assets/brand/foreground.png")} style={{ width: 120, height: 120 }} accessibilityLabel="Akhyles" />
+            <Image source={require("../../assets/brand/icon.png")} style={{ width: 120, height: 120, borderRadius: 28 }} accessibilityLabel="Akhyles" />
             <Txt size={10} muted style={{ letterSpacing: 3 }}>
-              {messages.Welcome.menosEsMas}
+              {APP.slogan}
             </Txt>
           </View>
         </View>

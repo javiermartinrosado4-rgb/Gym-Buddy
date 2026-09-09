@@ -82,7 +82,7 @@ export default function Today() {
   return (
     <Page>
       <Row style={{ justifyContent: "space-between" }}>
-        <Row><Image source={require("../../assets/brand/foreground.png")} style={{ width: 26, height: 26 }} accessibilityLabel="Akhyles" /><Txt size={21} weight="600">{APP.name}</Txt></Row>
+        <Row><Image source={require("../../assets/brand/icon.png")} style={{ width: 26, height: 26, borderRadius: 6 }} accessibilityLabel="Akhyles" /><Txt size={21} weight="600">{APP.name}</Txt></Row>
         <Pill>{messages.Today.unPasoALaVez}</Pill>
       </Row>
       <Heading

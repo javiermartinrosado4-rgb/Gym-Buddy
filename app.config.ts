@@ -19,7 +19,7 @@ const config: ExpoConfig = {
     softwareKeyboardLayoutMode: "resize",
     adaptiveIcon: {
       foregroundImage: "./assets/brand/foreground.png",
-      backgroundColor: "#F7F8F2",
+      backgroundColor: "#070A09",
       monochromeImage: "./assets/brand/monochrome.png",
     },
     blockedPermissions: ["android.permission.SYSTEM_ALERT_WINDOW", "android.permission.RECORD_AUDIO", "android.permission.CAMERA", "android.permission.READ_MEDIA_IMAGES", "android.permission.READ_MEDIA_VIDEO", "android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"],
