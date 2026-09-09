@@ -15,5 +15,5 @@ if ($listener) {
 }
 $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + $env:Path
 Write-Host 'Abriendo Akhyles. Deja esta ventana abierta mientras utilizas la aplicacion.'
-Write-Host 'Para detenerla, pulsa Ctrl+C o utiliza Detener Gym Buddy.cmd.'
+Write-Host 'Para detenerla, pulsa Ctrl+C o utiliza Detener Akhyles.cmd.'
 & npx.cmd expo start --web --localhost --port 8081

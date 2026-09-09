@@ -13,9 +13,9 @@ sesiones en esta ejecución; el control nativo de Windows devolvió además
 
 - URL de Comunidad en producción: pendiente, no inventada.
 - URL de privacidad y solicitud de borrado: pendientes de alojamiento y datos reales.
-- APK: `artifacts/android/gym-buddy-offline-preview.apk` (73793097 bytes).
+- APK: `artifacts/android/akhyles-offline-preview.apk` (73793097 bytes).
   SHA-256: `1289a061a93cd29db4f56722986b5c27a30f14861681aac75f5e32910f4bbcfd`.
-- AAB: `artifacts/android/gym-buddy-offline-preview.aab` (52102935 bytes).
+- AAB: `artifacts/android/akhyles-offline-preview.aab` (52102935 bytes).
   SHA-256: `72d6c56eefc7ba6a00078437cded144b5d3a5e3640820843ed0fe1da2b8fdc77`.
 
 Estos nuevos artefactos tienen tipo de compilación release y firma original, pero
@@ -23,7 +23,7 @@ son **offline**. No deben anunciarse como Comunidad/Google activados ni enviarse
 la versión conectada solicitada. Los artefactos anteriores se han conservado.
 La release conectada se generará al definir y comprobar `EXPO_PUBLIC_COMMUNITY_URL`.
 
-APK auxiliar no distribuible: `artifacts/android/gym-buddy-local-test.apk`, SHA-256
+APK auxiliar no distribuible: `artifacts/android/akhyles-local-test.apk`, SHA-256
 `6991594d309d66b239f412754bb6230ab1b4915a7612a293c925763ad8716808`.
 Tras las pruebas se cerró la sesión sintética, se detuvo su backend y se reinstaló
 la APK offline firmada en el emulador. Se restauró el ajuste temporal de escritura

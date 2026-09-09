@@ -4,8 +4,8 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import process from "node:process";
 
-const apk = resolve(process.argv[2] || "artifacts/android/gym-buddy-release.apk");
-const aab = resolve(process.argv[3] || "artifacts/android/gym-buddy-release.aab");
+const apk = resolve(process.argv[2] || "artifacts/android/akhyles-release.apk");
+const aab = resolve(process.argv[3] || "artifacts/android/akhyles-release.aab");
 const localTools = join(process.env.USERPROFILE, ".local/gym-buddy-android");
 const javaHome = process.env.JAVA_HOME || join(localTools, "java", readdirSync(join(localTools, "java"))[0]);
 const sdk = process.env.ANDROID_HOME || join(process.env.LOCALAPPDATA, "Android/Sdk");

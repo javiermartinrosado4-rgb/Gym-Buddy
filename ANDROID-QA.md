@@ -8,10 +8,10 @@ Comprobaciones describen la revisión histórica `versionCode` 1.
 
 | Archivo nuevo excluido de Git | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `artifacts/android/gym-buddy-offline-preview.apk` | 73793097 | `1289a061a93cd29db4f56722986b5c27a30f14861681aac75f5e32910f4bbcfd` |
-| `artifacts/android/gym-buddy-offline-preview.aab` | 52102935 | `72d6c56eefc7ba6a00078437cded144b5d3a5e3640820843ed0fe1da2b8fdc77` |
+| `artifacts/android/akhyles-offline-preview.apk` | 73793097 | `1289a061a93cd29db4f56722986b5c27a30f14861681aac75f5e32910f4bbcfd` |
+| `artifacts/android/akhyles-offline-preview.aab` | 52102935 | `72d6c56eefc7ba6a00078437cded144b5d3a5e3640820843ed0fe1da2b8fdc77` |
 
-Comprobación reproducible: `node scripts/verify-android.mjs artifacts/android/gym-buddy-offline-preview.apk artifacts/android/gym-buddy-offline-preview.aab`.
+Comprobación reproducible: `node scripts/verify-android.mjs artifacts/android/akhyles-offline-preview.apk artifacts/android/akhyles-offline-preview.aab`.
 Informe generado: `artifacts/android/release-verification.json`; manifest extraído
 en `artifacts/android/release-manifest.xml`. Firma original conservada, SHA-1
 `04:0E:A0:AF:D7:97:F2:27:30:19:8C:DB:42:95:C4:76:3A:B8:6A:B7`.
@@ -46,7 +46,7 @@ muestra indisponibilidad. Cierre forzado y arranque con Wi-Fi/datos apagados con
 el historial; conectividad restaurada. Capturas nuevas `artifacts/android/qa/release-v2-*`.
 Dos capturas reales revisadas visualmente para Play en `assets/play/screenshots/`.
 
-Variante separada `gym-buddy-local-test.apk`, mismo `versionCode` y firma, únicamente
+Variante separada `akhyles-local-test.apk`, mismo `versionCode` y firma, únicamente
 para `http://10.0.2.2:8082` en emulador: registro nativo, sesión recuperada tras cierre
 forzado mediante SecureStore, selector de fotos (apertura/cancelación/selección),
 publicación de imagen sintética y progreso compartido (1 sesión, 2 series, 35 kg × 9)
@@ -75,7 +75,7 @@ Android mínimo API 24, objetivo API 36; arquitecturas ARM64 y x86_64.
 | Archivo local, excluido de Git | Bytes | SHA-256 |
 | --- | ---: | --- |
 | `artifacts/android/gym-buddy-preview.apk` | 73761061 | `413ba923bbdd8d86f80833baa10d231726d108061c66ec1b2c1d04ff80bd8ab1` |
-| `artifacts/android/gym-buddy-release.aab` | 52075111 | `bb6d8c1e7bf05b43ad8cec230fdbd30b8c193131c9ac472d60ad9d3a7a95ede8` |
+| `artifacts/android/akhyles-release.aab` | 52075111 | `bb6d8c1e7bf05b43ad8cec230fdbd30b8c193131c9ac472d60ad9d3a7a95ede8` |
 
 Firma local de publicación, distinta de la firma debug. SHA-1 del certificado:
 `04:0E:A0:AF:D7:97:F2:27:30:19:8C:DB:42:95:C4:76:3A:B8:6A:B7`.

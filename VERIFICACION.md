@@ -6,7 +6,7 @@ El recorrido de Hoy verifica una sesión terminada con mejora y después una baj
 
 `npx.cmd expo export --platform web` completado correctamente en `dist`. Revisadas visualmente las capturas de Rutina y Comunidad (390 px). No probado en dispositivos Android/iOS. Las pruebas utilizan perfiles aislados, sin alterar el perfil real del navegador del usuario.
 
-Las reglas nuevas y sus límites están en `REQUISITOS-GYM-BUDDY.md`. La puntuación es experimental; comunidad remota e IA siguen pendientes. El informe siguiente es histórico y describe la primera versión, cuyas reglas de duración y progresión se han sustituido.
+Las reglas nuevas y sus límites están en `REQUISITOS-AKHYLES.md`. La puntuación es experimental; comunidad remota e IA siguen pendientes. El informe siguiente es histórico y describe la primera versión, cuyas reglas de duración y progresión se han sustituido.
 
 ## Informe histórico de la primera versión
 

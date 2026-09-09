@@ -42,7 +42,7 @@ test("reorder, profile edits during a workout, community and local logout surviv
   await expect(page.getByText("@javier_gym", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Progreso", exact: true }).click();
   await expect(page.getByText("Peso corporal · siempre visible", { exact: true })).toBeVisible();
-  await page.screenshot({ path: "test-results/gym-buddy-progreso.png" });
+  await page.screenshot({ path: "test-results/akhyles-progreso.png" });
   await page.getByRole("button", { name: "Perfil", exact: true }).click();
   await page.getByRole("button", { name: "Cerrar sesión", exact: true }).click();
   await page.reload();
@@ -72,7 +72,7 @@ test("old plans remain intact until updating the new rules and small viewports f
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Comunidad", exact: true }).click();
   await expect(page.getByText("Crecer juntos", { exact: true })).toBeVisible();
-  await page.screenshot({ path: "test-results/gym-buddy-comunidad.png" });
+  await page.screenshot({ path: "test-results/akhyles-comunidad.png" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 test("workout arrows preserve drafts and skipped exercises only affect today's session", async ({ page }) => {

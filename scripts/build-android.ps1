@@ -52,8 +52,8 @@ try {
     $outputPath = Join-Path $projectPath 'artifacts\android'
     New-Item -ItemType Directory -Force -Path $outputPath | Out-Null
     $suffix = if ($LocalTest) { 'local-test' } elseif ($OfflinePreview) { 'offline-preview' } else { 'release' }
-    if ($Format -ne 'aab') { Copy-Item -LiteralPath 'android\app\build\outputs\apk\release\app-release.apk' -Destination (Join-Path $outputPath "gym-buddy-$suffix.apk") }
-    $bundleName = if ($OfflinePreview) { 'gym-buddy-offline-preview.aab' } else { 'gym-buddy-release.aab' }
+    if ($Format -ne 'aab') { Copy-Item -LiteralPath 'android\app\build\outputs\apk\release\app-release.apk' -Destination (Join-Path $outputPath "akhyles-$suffix.apk") }
+    $bundleName = if ($OfflinePreview) { 'akhyles-offline-preview.aab' } else { 'akhyles-release.aab' }
     if ($Format -ne 'apk') { Copy-Item -LiteralPath 'android\app\build\outputs\bundle\release\app-release.aab' -Destination (Join-Path $outputPath $bundleName) }
     Get-ChildItem -LiteralPath $outputPath | Where-Object Extension -In '.apk','.aab' | Get-FileHash -Algorithm SHA256
 } finally { Pop-Location }

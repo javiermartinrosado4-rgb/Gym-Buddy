@@ -53,7 +53,7 @@ La conexión con ChatGPT personal y el asistente IA siguen pendientes. El select
 
 Los objetivos semanales son reglas de producto solicitadas, no se presentan como una recomendación universal. Si no caben en los días y el material disponibles, se muestra cuánto falta. La especialización implementa el objetivo de 16 series, no todavía duración de bloques ni descargas.
 
-Consulta [REQUISITOS-GYM-BUDDY.md](REQUISITOS-GYM-BUDDY.md) para el detalle de lo implementado y pendiente.
+Consulta [REQUISITOS-AKHYLES.md](REQUISITOS-AKHYLES.md) para el detalle de lo implementado y pendiente.
 
 ## Desarrollo y comprobaciones
 

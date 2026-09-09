@@ -1,8 +1,8 @@
 # Akhyles para Android
 
 > Revisión actual: `versionCode` 2. La release conectada requiere URL pública HTTPS
-> comprobada y produce `gym-buddy-release.apk` / `.aab`. Sin hosting, usar
-> `-OfflinePreview`: produce `gym-buddy-offline-preview.apk` / `.aab`, sin Comunidad.
+> comprobada y produce `akhyles-release.apk` / `.aab`. Sin hosting, usar
+> `-OfflinePreview`: produce `akhyles-offline-preview.apk` / `.aab`, sin Comunidad.
 > El script exige la firma existente; no crea otra si falta. Validación repetible:
 > `node scripts/verify-android.mjs RUTA_APK RUTA_AAB`.
 
@@ -25,7 +25,7 @@ Para generar ambos formatos:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Format both
 ```
 
-La release conectada se guarda en `artifacts/android/gym-buddy-release.apk` y `artifacts/android/gym-buddy-release.aab`. Se incluyen ARM64 (móviles actuales) y x86_64 (emulador). La APK contiene el código y los recursos: no necesita Metro ni Expo Go. La carpeta de resultados se excluye de Git.
+La release conectada se guarda en `artifacts/android/akhyles-release.apk` y `artifacts/android/akhyles-release.aab`. Se incluyen ARM64 (móviles actuales) y x86_64 (emulador). La APK contiene el código y los recursos: no necesita Metro ni Expo Go. La carpeta de resultados se excluye de Git.
 
 ## Firma y actualizaciones
 
@@ -45,7 +45,7 @@ Para probar un servidor local en el emulador (build exclusivamente de prueba):
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Format apk -CommunityUrl http://10.0.2.2:8082 -LocalTest
 ```
 
-Esta variante se guarda como `gym-buddy-local-test.apk`. Las builds normales bloquean tráfico HTTP sin cifrar. No distribuyas una variante de prueba local como versión de producción.
+Esta variante se guarda como `akhyles-local-test.apk`. Las builds normales bloquean tráfico HTTP sin cifrar. No distribuyas una variante de prueba local como versión de producción.
 
 ## EAS como alternativa
 
